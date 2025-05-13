@@ -53,6 +53,7 @@ The main objective is to collect all the carts and bring them back to the centra
 ## 📷 Screenshots
 
 Initial loading and scene transition. Black placeholder for control hints. 
+
 <img src="https://github.com/user-attachments/assets/ebb7fef5-9a68-4c7e-8671-d3b69b7f6bc3" width="300" height="200" alt="Loading process">
 
 Chain-Based Cart Linking
