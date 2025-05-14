@@ -16,7 +16,7 @@ public class GameEntryPoint
     private UIRootView _uiRoot;
     private EventBus _bus;
 
-    private float delay = 3f;
+
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void AutoStartGame()
