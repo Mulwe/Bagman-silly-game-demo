@@ -22,12 +22,11 @@ public class EventBus
     public UnityEvent TemperatureChangedUI { get; } = new();
 
 
-    /* система событий игрок + ддоделать автоотрисовку
-    public void TriggerPlayerStaminaUpdated() => PlayerStaminaUpdateUI.Invoke();
-    public void TriggerPlayerSpeedUpdated() => PlayerSpeedUpdate.Invoke();
-    public void TriggerPlayerHealthUpdated() => PlayerHealthUpdate.Invoke();
-    public void TriggerTemperatureChanged() => TemperatureChanged.Invoke();
-    */
+    public UnityEvent PlayerStatsChanged { get; } = new();
+
+    /* система событий игрок + ддоделать автоотрисовку*/
+    public void TriggerPlayerStatsChanged() => PlayerStatsChanged.Invoke();
+
 
 
     //UI Updates

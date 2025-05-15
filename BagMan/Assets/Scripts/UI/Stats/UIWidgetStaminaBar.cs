@@ -61,7 +61,7 @@ public class UIWidgetStaminaBar : MonoBehaviour
         if (_isInit)
         {
             _isInit = false;
-            _eventBus.PlayerStaminaUpdateUI.RemoveAllListeners();
+            _eventBus.PlayerStaminaUpdateUI.RemoveListener(OnStaminaChanged);
         }
     }
 }

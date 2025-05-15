@@ -107,7 +107,7 @@ public class GameplayEntryPoint : MonoBehaviour
         _buttonHandler.Initialize(_bus);
         _playerController.Initialize(_bus);
         _UI_StatsTracker.Initialize(_gm.PlayerStats, _bus);
-        _gameplay.Initialize(_buttonHandler, _playerController, _gm.PlayerStats);
+        _gameplay.Initialize(_gm);
         _playerEventHandler.Initialize(_gm);
     }
 

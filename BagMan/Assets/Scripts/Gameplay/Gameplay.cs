@@ -1,6 +1,5 @@
 using UnityEngine;
 
-// Gameplay Scene ссылки на объекты и подготовка сцены
 public class Gameplay : MonoBehaviour
 {
     [Header("PlayerController:")]
@@ -10,66 +9,72 @@ public class Gameplay : MonoBehaviour
 
     private ButtonHandler _buttonHandler;
     private CharacterStats _playerStats;
-
+    private GameManager _gameManager;
 
     private bool _initialized = false;
+    private bool _isStarted = false;
+    private bool _haveListeners = false;
 
     public void Run()
     {
         if (_initialized == true)
         {
-            // запуск только после инициализации
             StartGameplay();
         }
         else
             Debug.Log("Gameplay components are not init. GamePlay not started");
     }
 
-    public void Initialize(ButtonHandler buttonHandler, PlayerController playerController, CharacterStats PlayerStats)
+    public void Initialize(GameManager gm)
     {
-        _buttonHandler = buttonHandler;
-        _control = playerController;
+        _buttonHandler = gm?.BtnHandler;
+        _control = gm?.PlayerController;
         if (_buttonHandler == null || _control == null)
         {
             Debug.LogError("Gameplay: References Init error");
         }
         else
         {
-            // send something that you need not gm
-            this._playerStats = PlayerStats;
-            InitSpawner();
+            _gameManager = gm;
+            _spawner.Initialize();
+            if (_spawner.GetList() != null && _gameManager != null)
+                _initialized = true;
+            else
+                Debug.Log($"{this}: failed in intialization!");
         }
-    }
-
-
-    private void InitSpawner()
-    {
-        _spawner.Initialize();
-        if (_spawner.GetList() != null)
-        {
-            _initialized = true;
-        }
-        else
-            Debug.Log("_spawner returned null list");
     }
 
 
     private void StartGameplay()
     {
-
+        //GameManager 
+        _gameManager.Init();
         Debug.Log($"Check Player stats:" +
-            $"\n Stamina: {_playerStats.Stamina}" +
-            $"\n Health: {_playerStats.Health}");
-        //Update Character Stats
-        //_playerStats.TryUseStamina();
+            $"\n Stamina: {_playerStats?.Stamina}" +
+            $"\n Health: {_playerStats?.Health}");
+        RunPlayerDependencies(_gameManager);
 
-        //show the task
+    }
 
-        //start timers
+    private void RunPlayerDependencies(GameManager gm)
+    {
+        gm.PlayerEventHandler.Initialize(gm);
+        //Listeners
+        //gm.EventBus.
+        //gm.EventBus.
+        //gm.EventBus.
+        //gm.EventBus.
+        _haveListeners = true;
+        _isStarted = true;
+    }
 
-        //conditions to win 
-        _playerStats.TakeDamage(10);
+    private void OnDisable()
+    {
+        //remove listeners if init
+        if (_haveListeners)
+        {
 
+        }
     }
 
     private void OnValidate()
@@ -78,20 +83,30 @@ public class Gameplay : MonoBehaviour
             _spawner = transform.gameObject.GetComponent<SpawnedObjects>();
     }
 
-    private void OnEnable()
+    private void Update()
     {
+        if (_isStarted == true)
+        {
 
+        }
     }
 
-    private void OnDisable()
+    public void OnPlayerHealthChanged()
     {
-
+        //
+        _gameManager.EventBus.TriggerPlayerHealthUpdateUI();
     }
 
+    public void OnPlayerStaminaChanged()
+    {
+        //
+        _gameManager.EventBus.TriggerPlayerStaminaUpdateUI();
+    }
 
-
-
-
-
+    public void OnPlayerSpeedChanged()
+    {
+        //
+        _gameManager.EventBus.TriggerPlayerSpeedUpdateUI();
+    }
 }
 

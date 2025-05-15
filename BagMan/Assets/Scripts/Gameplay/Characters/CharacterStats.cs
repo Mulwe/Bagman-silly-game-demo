@@ -36,8 +36,6 @@ public class CharacterStats : ICharacterStats
             Debug.Log(message);
     }
 
-    //======================
-
     public int Health
     {
         get => _health;
@@ -112,5 +110,23 @@ public class CharacterStats : ICharacterStats
         else
             _movementSpeed = updatedSpeed;
         Log($"{this} has this speed: {_movementSpeed} now.");
+    }
+
+    public int ChangeMaxHealth(int newMaxHealth)
+    {
+        if (newMaxHealth > 0)
+        {
+            _maxHealth = newMaxHealth;
+        }
+        return _maxHealth;
+    }
+
+    public int ChangeMaxStamina(int newMaxStamina)
+    {
+        if (newMaxStamina > 0)
+        {
+            _maxStamina = newMaxStamina;
+        }
+        return _maxStamina;
     }
 }

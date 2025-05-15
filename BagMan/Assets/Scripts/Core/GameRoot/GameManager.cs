@@ -25,9 +25,6 @@ public class GameManager
     private CharacterStats _player;
     public CharacterStats PlayerStats => _player;
 
-
-
-
     public GameManager(UI_Reference ui, ButtonHandler btnHandler, UI_StatsTracker uI_Stats,
         PlayerController playerController, EventBus eventBus, Gameplay gameplay,
         PlayerEventHandler pEventHandler)
@@ -39,10 +36,7 @@ public class GameManager
         _gameplay = gameplay;
         _UI_StatsTracker = uI_Stats;
         _playerEventHandler = pEventHandler;
-        _player = new CharacterStats();
     }
-
-
 
     public void Init()
     {
@@ -59,7 +53,8 @@ public class GameManager
             Debug.LogError($"{this}: null reference");
             return;
         }
-        InitPlayerStats(null);
+
+        _player ??= new CharacterStats(100, 200, 0.5f);
     }
 
 
@@ -74,15 +69,9 @@ public class GameManager
         return _player;
     }
 
-    private void InitPlayerStats(CharacterStats PlayerStats)
+    public void ReInitializePlayer(int health, int stamina, float rate)
     {
-        _player = new CharacterStats();
-        //_player = new CharacterStats(100, 200, 0.5f);
-        if (PlayerStats != null)
-        {
-            _player = PlayerStats;
-        }
-        Debug.Log("Player stats are initialized");
+        _player ??= new CharacterStats(health, stamina, rate);
     }
 
     private void Clear()
@@ -90,7 +79,7 @@ public class GameManager
         _uiReference = null;
         _buttonHandler = null;
         _playerController = null;
-        _eventBus.RemoveAllListeners();
+        _eventBus.RemoveAllListeners(); //!
         if (_isCreated)
         {
             _eventBus = null;
