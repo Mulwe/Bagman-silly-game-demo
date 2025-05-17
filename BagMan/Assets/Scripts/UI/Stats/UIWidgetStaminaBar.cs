@@ -25,7 +25,7 @@ public class UIWidgetStaminaBar : MonoBehaviour
             _progressBar = this.GetComponentInChildren<UI_ProgressBar>();
             _eventBus.PlayerStaminaUpdateUI.AddListener(OnStaminaChanged);
             _isInit = true;
-            Debug.LogError("IsInit");
+            //Debug.LogError("IsInit");
         }
         return _isInit;
     }

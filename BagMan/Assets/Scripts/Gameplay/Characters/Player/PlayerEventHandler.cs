@@ -15,7 +15,6 @@ public class PlayerEventHandler : MonoBehaviour
     // conditions
     public int StaminaDrain = 10;
     private bool _canRepeat = false;
-    private bool _canRepeat2 = false;
     private float _defaultSpeed = 5f;
     private float regenTimer = 0f;
 
@@ -36,7 +35,6 @@ public class PlayerEventHandler : MonoBehaviour
             _defaultSpeed = _playerStats.GetCharacterSpeed();
             _isInit = true;
             _canRepeat = true;
-            _canRepeat2 = true;
         }
         else
         {

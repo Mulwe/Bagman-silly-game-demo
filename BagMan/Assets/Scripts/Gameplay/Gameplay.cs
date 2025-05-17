@@ -1,20 +1,25 @@
+using System.Collections;
 using UnityEngine;
 
 public class Gameplay : MonoBehaviour
 {
-    [Header("PlayerController:")]
-    [SerializeField] private PlayerController _control;
     [Header("Spawner — SpawnObjects class:")]
     [SerializeField] private SpawnedObjects _spawner;
-
-    private ButtonHandler _buttonHandler;
     [Range(1, 50)]
     [SerializeField] private float _playerSpeed = 8f;
+
     private GameManager _gameManager;
+    private DropZoneController _dropZoneController;
 
     private bool _initialized = false;
     private bool _isStarted = false;
     private bool _haveListeners = false;
+    public SpawnedObjects SpawnedObjects => _spawner;
+    public GameManager GameManager => _gameManager;
+
+
+    private int Points = 0;
+    private bool _Timeout = false;
 
     public void Run()
     {
@@ -29,9 +34,8 @@ public class Gameplay : MonoBehaviour
     public void Initialize(GameManager gm)
     {
         _gameManager = gm;
-        _buttonHandler = gm?.BtnHandler;
-        _control = gm?.PlayerController;
-        if (_buttonHandler == null || _control == null)
+
+        if (gm?.BtnHandler == null || gm?.PlayerController == null)
         {
             Debug.LogError("Gameplay: References Init error");
         }
@@ -43,7 +47,21 @@ public class Gameplay : MonoBehaviour
 
     public void StartGameplay()
     {
+        if (_isStarted && _initialized && _gameManager != null)
+        {
 
+            // событие игрок или тележка на поле
+
+            // отстегнуть
+            // переместить
+            // добавить очко
+
+        }
+    }
+
+    IEnumerator DropZoneTracker()
+    {
+        yield return null;
     }
 
     //Listener OnPlayerStatsChanged
@@ -55,6 +73,7 @@ public class Gameplay : MonoBehaviour
             gm.Init();
             ChangeDefaultPlayerSpeed(_playerSpeed);
             gm.EventBus.PlayerStatsChanged.AddListener(OnPlayerStatsChanged);
+            //gm.EventBus.PlayerStatsChanged.AddListener(OnPlayerIsOnDropZone);
             _haveListeners = true;
             _isStarted = true;
             _initialized = true;
@@ -70,6 +89,7 @@ public class Gameplay : MonoBehaviour
         {
             if (newSpeed > 0)
             {
+
                 gm.PlayerStats.SetCharacterSpeed(newSpeed);
                 gm.PlayerController.UpdatePlayerSpeed(newSpeed);
             }
@@ -82,6 +102,7 @@ public class Gameplay : MonoBehaviour
         if (_haveListeners)
         {
             _gameManager.EventBus.PlayerStatsChanged.RemoveListener(OnPlayerStatsChanged);
+            //gm.EventBus.PlayerStatsChanged.RemoveListener(OnPlayerIsOnDropZone);
         }
     }
 
@@ -93,11 +114,10 @@ public class Gameplay : MonoBehaviour
 
     private void Update()
     {
-        if (_isStarted == true)
-        {
 
-        }
     }
+
+
 
     public void OnPlayerStatsChanged()
     {

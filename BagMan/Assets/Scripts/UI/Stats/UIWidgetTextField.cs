@@ -54,7 +54,7 @@ public class UIWidgetTextField : MonoBehaviour
 
         if (obj != null && eventBus != null)
         {
-            Debug.Log($"obj.ParentName: {obj.ParentName} \n State: {state}");
+
             switch (obj.ParentName)
             {
                 case HUD_Health:

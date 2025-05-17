@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.Events;
 //using UnityEngine.Events; UnityEvent много минусов 
 
@@ -24,27 +25,28 @@ public class EventBus
 
     public UnityEvent PlayerStatsChanged { get; } = new();
 
-    /* система событий игрок + ддоделать автоотрисовку*/
+    //
+    public UnityEvent<GameObject> ObjectOnDropZone { get; } = new();
+    public UnityEvent RespawnObject { get; } = new();
+    public UnityEvent AddPoint { get; } = new();
+
+    public void TriggerObjectOnDropZone(GameObject target) => ObjectOnDropZone.Invoke(target);
+
+    //
     public void TriggerPlayerStatsChanged() => PlayerStatsChanged.Invoke();
-
-
-
     //UI Updates
     public void TriggerPlayerStaminaUpdateUI() => PlayerStaminaUpdateUI.Invoke();
     public void TriggerPlayerSpeedUpdateUI() => PlayerSpeedUpdateUI.Invoke();
     public void TriggerPlayerHealthUpdateUI() => PlayerHealthUpdateUI.Invoke();
     public void TriggerTemperatureChangedUI() => TemperatureChangedUI.Invoke();
-
     //System Game events
     public void TriggerExitGame() => GameExit.Invoke();
     public void TriggerPauseGame() => GamePause.Invoke();
     public void TriggerResumeGame() => GameResume.Invoke();
-
     // change flag when the time stops
     public void TriggerGameRunTime(bool status) => GameRunTime.Invoke(status);
     //System UI
     public void TriggerUIShowPause(bool status) => UI_Menu.Invoke(status);
-
     public void TriggerGameOver() => UI_GameOver.Invoke();
 
 
@@ -54,12 +56,12 @@ public class EventBus
     public void RemoveAllListeners()
     {
 
+
+        PlayerStatsChanged.RemoveAllListeners();
         PlayerStaminaUpdateUI.RemoveAllListeners();
         PlayerSpeedUpdateUI.RemoveAllListeners();
         PlayerHealthUpdateUI.RemoveAllListeners();
-
         TemperatureChangedUI.RemoveAllListeners();
-
         UI_Menu.RemoveAllListeners();
         UI_GameOver.RemoveAllListeners();
         PlayerControl.RemoveAllListeners();

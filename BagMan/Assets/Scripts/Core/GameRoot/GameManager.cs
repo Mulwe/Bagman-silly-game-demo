@@ -24,6 +24,7 @@ public class GameManager
     //Player stats
     private CharacterStats _player;
     public CharacterStats PlayerStats => _player;
+    public bool IsInit => _isCreated;
 
     public GameManager(UI_Reference ui, ButtonHandler btnHandler, UI_StatsTracker uI_Stats,
         PlayerController playerController, EventBus eventBus, Gameplay gameplay,

@@ -37,12 +37,13 @@ public class ImprovedCartAttachment : MonoBehaviour
 
     Vector3 DebugPosition;
 
-
     //can't use validate because of prefab
-    void Start()
+    private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         InitializeAttachmentPoints();
+
+        DebugPosition = transform.position;
 
         if (_playerObject == null)
             _playerObject = GameObject.FindWithTag("Player");
@@ -53,7 +54,7 @@ public class ImprovedCartAttachment : MonoBehaviour
 
     }
 
-    void Update()
+    private void Update()
     {
 
         if (isAttached && Input.GetKeyDown(KeyCode.Q))
@@ -68,7 +69,7 @@ public class ImprovedCartAttachment : MonoBehaviour
         }
     }
 
-    void InitializeAttachmentPoints()
+    private void InitializeAttachmentPoints()
     {
         if (frontPoint == null)     // Create front attachment point if needed
         {
@@ -150,7 +151,7 @@ public class ImprovedCartAttachment : MonoBehaviour
         }
     }
 
-    void AttachToPlayer(GameObject player)
+    private void AttachToPlayer(GameObject player)
     {
         Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
         if (playerRb == null)
@@ -217,7 +218,7 @@ public class ImprovedCartAttachment : MonoBehaviour
         Debug.Log(gameObject.name + " attached to player");
     }
 
-    bool AttachToCart(GameObject cart)
+    private bool AttachToCart(GameObject cart)
     {
         ImprovedCartAttachment otherCart = cart.GetComponent<ImprovedCartAttachment>();
         Rigidbody2D otherRb = cart.GetComponent<Rigidbody2D>();
@@ -328,6 +329,13 @@ public class ImprovedCartAttachment : MonoBehaviour
         Debug.Log(gameObject.name + " detached");
     }
 
+    public GameObject IsAttached()
+    {
+        if (connectedObject != null)
+            return connectedObject;
+        return null;
+    }
+
     // Detach entire chain from this cart forward
     // Recursively detach the chain
     public void DetachChain()
@@ -346,6 +354,7 @@ public class ImprovedCartAttachment : MonoBehaviour
             }
         }
     }
+
 
     // Visualization in editor
     void OnDrawGizmosSelected()

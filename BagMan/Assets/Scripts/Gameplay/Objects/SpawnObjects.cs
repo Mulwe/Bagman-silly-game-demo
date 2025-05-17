@@ -1,3 +1,4 @@
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     public List<GameObject> _listObjects;
 
     private bool _isSpawned = false;
+    public bool IsInit => _isSpawned;
 
     public List<GameObject> GetList()
     {
@@ -48,8 +50,7 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     {
         List<GameObject> list;
         //выключу колайдер прямо перед проверкой.  
-        //Изза функции Physics2D.OverlapBox тригирится на любые колайдеры - видимые и невидимые.
-        //ошибка планирования архитектуры. или костыль
+        //Изза функции Physics2D.OverlapBox тригирится на любые колайдеры - видимые и невидимые. 
         if (_objPrefab != null)
         {
             s.SpawnColliderIsActive(false);
@@ -101,7 +102,7 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     {
         List<Vector2> spawnArea = s.GetSpawnZone();
         List<Vector2> bannedArea = s.GetDropZone();
-        GameObject obj = null;
+        GameObject obj;
         int maxAttemps = 50;
 
         Vector2 spot = Vector2.zero;
@@ -119,6 +120,42 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
             }
         }
         return null;
+    }
+
+    public bool ReSpawnObject(GameObject objOnScene, List<Vector2> playerViewArea)
+    {
+        bool spawned = false;
+
+        if (_spawnZone == null && objOnScene && playerViewArea.Count > 0)
+        {
+            List<Vector2> spawnArea = _spawnZone.GetSpawnZone();
+            List<Vector2> bannedArea = playerViewArea;
+            int maxAttemps = 50;
+            _spawnZone.SpawnColliderIsActive(false);
+            Vector2 spot = Vector2.zero;
+            for (int i = 0; i < maxAttemps; i++)
+            {
+                spot.x = Random.Range(_spawnZone.GetX(spawnArea).minX, _spawnZone.GetX(spawnArea).maxX);
+                spot.y = Random.Range(_spawnZone.GetY(spawnArea).minY, _spawnZone.GetY(spawnArea).maxY);
+                if (!_spawnZone.IsPointInRectangle(bannedArea, spot))
+                {
+
+                    if (IsObstacleFree(objOnScene, spot))
+                    {
+
+                        // тут есть у объекта rigidbody
+                        Rigidbody rb = objOnScene.GetComponent<Rigidbody>();
+                        rb.position = spot;
+                        rb.linearVelocity = Vector3.zero;
+                        rb.angularVelocity = Vector3.zero;
+                        spawned = true;
+                    }
+                }
+            }
+            _spawnZone.SpawnColliderIsActive(true);
+        }
+
+        return spawned;
     }
 
     bool IsObstacleFree(GameObject obj, Vector2 targetPosition)
@@ -172,6 +209,7 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
 
     private void OnDestroy()
     {
+        Debug.LogWarning($"{name} был уничтожен. Stack trace:\n{System.Environment.StackTrace}");
         DestroyAllObjects();
     }
 }
