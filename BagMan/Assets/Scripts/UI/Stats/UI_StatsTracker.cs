@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ public class UI_StatsTracker : MonoBehaviour
     List<Transform> AllProperties;
     private CharacterStats _playerStats;
     private EventBus _EventBus;
+    private GameManager _gameManager;
 
     private bool _isInit = false;
 
@@ -16,13 +18,27 @@ public class UI_StatsTracker : MonoBehaviour
     public EventBus EventBus => _EventBus;
     public CharacterStats PlayerStats => _playerStats;
 
-    public void Initialize(CharacterStats playerStats, EventBus bus)
+    public void Initialize(GameManager gm)
     {
-        _EventBus = bus;
-        _playerStats = playerStats;
-        if (_playerStats != null && _EventBus != null)
+        _EventBus = gm.EventBus;
+        _gameManager = gm;
+        //playerStats еще не инициализированы
+        StartCoroutine(WaitInitialization());
+    }
+
+    IEnumerator WaitInitialization()
+    {
+        while (_playerStats == null || _isInit != true)
         {
-            _isInit = true;
+            if (_gameManager != null)
+            {
+                if (_gameManager.PlayerStats != null)
+                {
+                    _playerStats = _gameManager.PlayerStats;
+                    _isInit = true;
+                }
+            }
+            yield return new WaitForSeconds(0.1f);
         }
     }
 

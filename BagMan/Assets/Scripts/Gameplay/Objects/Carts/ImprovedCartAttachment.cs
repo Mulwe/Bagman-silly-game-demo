@@ -254,7 +254,7 @@ public class ImprovedCartAttachment : MonoBehaviour
         otherCart.hasSomethingBehind = true;
         connectedObject = cart;
         OnCartAttached?.Invoke();
-        Debug.Log(gameObject.name + " attached to cart " + cart.name);
+        // Debug.Log(gameObject.name + " attached to cart " + cart.name);
         return true;
     }
 

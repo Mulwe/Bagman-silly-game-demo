@@ -36,7 +36,7 @@ public class GameplayEntryPoint : MonoBehaviour
     public void Run()
     {
         _gm.EventBus.GameExit.AddListener(OnCloseApplication);
-        Debug.Log("Gameplay Scene loaded: Initializing components");
+        //Debug.Log("Gameplay Scene loaded: Initializing components");
         // Регистрация компонентов в контейнере
         RegisterComponents();
         // Внедрение зависимостей
@@ -106,7 +106,7 @@ public class GameplayEntryPoint : MonoBehaviour
         _uiReference.Initialize(_bus, _uiReference);
         _buttonHandler.Initialize(_bus);
         _playerController.Initialize(_bus);
-        _UI_StatsTracker.Initialize(_gm.PlayerStats, _bus);
+        _UI_StatsTracker.Initialize(_gm);
         _gameplay.Initialize(_gm);
         _playerEventHandler.Initialize(_gm);
     }
@@ -117,6 +117,7 @@ public class GameplayEntryPoint : MonoBehaviour
         //_uiroot
         _playerController?.Run();
         _gameplay?.Run();
+        _playerEventHandler?.Run();
 
 
     }

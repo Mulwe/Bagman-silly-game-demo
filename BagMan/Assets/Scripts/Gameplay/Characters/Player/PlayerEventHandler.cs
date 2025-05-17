@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerEventHandler : MonoBehaviour
@@ -8,61 +9,129 @@ public class PlayerEventHandler : MonoBehaviour
 
     // Event system
     private EventBus _eventBus;
-
-    // не уверена что нужно если есть ссылка на gm
-    private Transform _parent;
     private Gameplay _gameplay;
-    //
+    private PlayerCartController _playerCartData;
 
-    bool _isInit = false;
+    // conditions
+    public int StaminaDrain = 10;
+    private bool _canRepeat = false;
+    private bool _canRepeat2 = false;
+    private float _defaultSpeed = 5f;
+    private float regenTimer = 0f;
 
+    private bool _isInit = false;
 
-    // есть подписчик, а есть события которые тригерят.
-    // можно отправлять сюда какие либо события и потом от этих событий будут дальше срабатывать тригеры
-    // или делать это только тут
-
-    // подписчик подписывается на событие 
-    // триггер вызвает событие
-    // тригер не знает о подписчике
-    // подписчик не знает о триггере
-
-
-    // думаю тут можно писать логику событий
-    // а тригерры либо извне либо тут но уже в минимальном количестве
-
-
-    public void Run()
-    {
-
-    }
 
     public void Initialize(GameManager gm)
     {
-        _control = gm?.PlayerController;
-        _playerStats = gm?.PlayerStats;
-        _eventBus = gm?.EventBus;
+        _gameplay ??= gm.GamePlay;
+        _control ??= gm?.PlayerController;
+        _playerStats ??= gm?.PlayerStats;
+        _eventBus ??= gm?.EventBus;
         if (_control != null && _playerStats != null
             && _eventBus != null && _isInit == false)
         {
             _control.UpdatePlayerSpeed(_playerStats.GetCharacterSpeed());
+            _playerCartData = transform.GetComponent<PlayerCartController>();
+            _defaultSpeed = _playerStats.GetCharacterSpeed();
             _isInit = true;
+            _canRepeat = true;
+            _canRepeat2 = true;
         }
         else
-            Debug.LogError($"{this}: is not Init");
+        {
+            Debug.LogError($"{this}: is not Init\n");
+        }
     }
 
 
-    private void AddListeners()
+    public void Run()
     {
-        //_eventBus
+        //Debug.Log("Player handler is run");
+
+        StartCoroutine(PlayerStatsCoroutine());
+
     }
+
+    void UpdatePlayerSpeed(float newSpeed)
+    {
+        if (_playerStats != null && _control)
+        {
+            _playerStats.SetCharacterSpeed(newSpeed);
+            _control.UpdatePlayerSpeed(newSpeed);
+        }
+    }
+
+    void SpeedChangeCondition()
+    {
+        if (_playerCartData == null || _playerStats == null || _control == null)
+            return;
+        float k = 1.5f;
+        var newSpeed = _defaultSpeed;
+        var minSpeed = _defaultSpeed * 0.3f;
+        if (_playerCartData.AttachedCarts > 0)
+            newSpeed = Mathf.Max(minSpeed, _defaultSpeed - k * _playerCartData.AttachedCarts);
+        if (_playerStats.Stamina == 0)
+            newSpeed = minSpeed;
+        UpdatePlayerSpeed(newSpeed);
+    }
+
+
+    void StaminaDrainCondition()
+    {
+
+        float delay = 1.0f;
+
+        if (!_canRepeat || _playerCartData == null)
+            return;
+        if (_canRepeat)
+            StartCoroutine(WaitUntilRepeat(delay));
+        Rigidbody2D rb = _control.GetComponent<Rigidbody2D>();
+        if (rb == null || rb?.linearVelocity.SqrMagnitude() <= 0.01f)
+            return;
+
+        PlayerIsMovingWithCarts();
+
+    }
+
+    void PlayerIsMovingWithCarts()
+    {
+
+        float staminaRateDrain = _playerCartData.AttachedCarts * (_playerStats.MaxStamina / 100);
+        int staminaToDrain = Mathf.RoundToInt(StaminaDrain * staminaRateDrain);
+
+        _playerStats.UseStamina(staminaToDrain);
+    }
+
+    IEnumerator WaitUntilRepeat(float delayInSeconds)
+    {
+        _canRepeat = false;
+        yield return new WaitForSeconds(delayInSeconds);
+        _canRepeat = true;
+    }
+
+    IEnumerator PlayerStatsCoroutine()
+    {
+        if (_isInit && _playerStats != null && _playerCartData != null && _control != null)
+        {
+            while (_isInit)
+            {
+                //!!!!  
+                RefreshUI();
+                yield return new WaitForSeconds(0.2f);
+            }
+        }
+    }
+
+
 
     private void OnDisable()
     {
         if (_isInit)
         {
-
             //отписка
+
+            _isInit = false;
         }
     }
 
@@ -70,30 +139,30 @@ public class PlayerEventHandler : MonoBehaviour
     {
         if (_isInit)
         {
-
+            SpeedChangeCondition();
+            StaminaDrainCondition();
         }
-
     }
+
+
 
     private void Update()
     {
+        regenTimer += Time.deltaTime;
+        if (_isInit)
+        {
+            if (regenTimer >= 1f)
+            {
+                if (_playerCartData.AttachedCarts > 0)
+                    _playerStats.RestoreStamina(
+                        StaminaDrain * (StaminaDrain / _playerCartData.AttachedCarts));
+                else
+                    _playerStats.RestoreStamina(StaminaDrain * 2);
+                regenTimer = 0f;
+            }
 
-
+        }
     }
-
-    // нужен UI
-    // нужны данные игрока
-    // или события
-    // UI должен реагировать на такие события. у UI нет доступа к игроку
-
-
-    /*
-        UI подписывается на событие
-        PlayeHandler - тригеррит его и мониторит остальные данные
-        в UI только подписка и отписка. тригеры происходят извне
-        
-     */
-
 
 
     public void RefreshUI()

@@ -8,7 +8,8 @@ public class Gameplay : MonoBehaviour
     [SerializeField] private SpawnedObjects _spawner;
 
     private ButtonHandler _buttonHandler;
-    private CharacterStats _playerStats;
+    [Range(1, 50)]
+    [SerializeField] private float _playerSpeed = 8f;
     private GameManager _gameManager;
 
     private bool _initialized = false;
@@ -27,6 +28,7 @@ public class Gameplay : MonoBehaviour
 
     public void Initialize(GameManager gm)
     {
+        _gameManager = gm;
         _buttonHandler = gm?.BtnHandler;
         _control = gm?.PlayerController;
         if (_buttonHandler == null || _control == null)
@@ -35,37 +37,43 @@ public class Gameplay : MonoBehaviour
         }
         else
         {
-            _gameManager = gm;
-            _spawner.Initialize();
-            if (_spawner.GetList() != null && _gameManager != null)
-                _initialized = true;
-            else
-                Debug.Log($"{this}: failed in intialization!");
+            GameAndSpawnInitialization(gm);
         }
     }
 
-
-    private void StartGameplay()
+    public void StartGameplay()
     {
-        //GameManager 
-        _gameManager.Init();
-        Debug.Log($"Check Player stats:" +
-            $"\n Stamina: {_playerStats?.Stamina}" +
-            $"\n Health: {_playerStats?.Health}");
-        RunPlayerDependencies(_gameManager);
 
     }
 
-    private void RunPlayerDependencies(GameManager gm)
+    //Listener OnPlayerStatsChanged
+    private void GameAndSpawnInitialization(GameManager gm)
     {
-        gm.PlayerEventHandler.Initialize(gm);
-        //Listeners
-        //gm.EventBus.
-        //gm.EventBus.
-        //gm.EventBus.
-        //gm.EventBus.
-        _haveListeners = true;
-        _isStarted = true;
+        _spawner.Initialize();
+        if (_spawner.GetList() != null && _gameManager != null)
+        {
+            gm.Init();
+            ChangeDefaultPlayerSpeed(_playerSpeed);
+            gm.EventBus.PlayerStatsChanged.AddListener(OnPlayerStatsChanged);
+            _haveListeners = true;
+            _isStarted = true;
+            _initialized = true;
+        }
+        else
+            Debug.Log($"{this}: failed in intialization!");
+    }
+
+    private void ChangeDefaultPlayerSpeed(float newSpeed)
+    {
+        GameManager gm = _gameManager;
+        if (gm != null && gm.PlayerStats != null && gm.PlayerController)
+        {
+            if (newSpeed > 0)
+            {
+                gm.PlayerStats.SetCharacterSpeed(newSpeed);
+                gm.PlayerController.UpdatePlayerSpeed(newSpeed);
+            }
+        }
     }
 
     private void OnDisable()
@@ -73,7 +81,7 @@ public class Gameplay : MonoBehaviour
         //remove listeners if init
         if (_haveListeners)
         {
-
+            _gameManager.EventBus.PlayerStatsChanged.RemoveListener(OnPlayerStatsChanged);
         }
     }
 
@@ -91,22 +99,13 @@ public class Gameplay : MonoBehaviour
         }
     }
 
-    public void OnPlayerHealthChanged()
+    public void OnPlayerStatsChanged()
     {
-        //
+        //very lazy way
         _gameManager.EventBus.TriggerPlayerHealthUpdateUI();
-    }
-
-    public void OnPlayerStaminaChanged()
-    {
-        //
         _gameManager.EventBus.TriggerPlayerStaminaUpdateUI();
-    }
-
-    public void OnPlayerSpeedChanged()
-    {
-        //
         _gameManager.EventBus.TriggerPlayerSpeedUpdateUI();
     }
+
 }
 

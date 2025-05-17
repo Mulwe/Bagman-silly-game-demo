@@ -66,7 +66,7 @@ public class PlayerCartController : MonoBehaviour
             _attachedCarts = 0;
         else
             _attachedCarts--;
-        Debug.Log($"Player have [{_attachedCarts}] attached carts");
+
     }
 
     private void HandleCartAttached()
@@ -76,7 +76,7 @@ public class PlayerCartController : MonoBehaviour
             _attachedCarts = _limitAttachedCarts;
         else
             _attachedCarts++;
-        Debug.Log($"Player have [{_attachedCarts}] attached carts");
+        //Debug.Log($"Player have [{_attachedCarts}] attached carts");
     }
 
     void InitializeAttachPoint()

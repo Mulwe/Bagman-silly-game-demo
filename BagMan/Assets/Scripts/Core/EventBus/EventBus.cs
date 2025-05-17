@@ -39,15 +39,14 @@ public class EventBus
     public void TriggerExitGame() => GameExit.Invoke();
     public void TriggerPauseGame() => GamePause.Invoke();
     public void TriggerResumeGame() => GameResume.Invoke();
+
     // change flag when the time stops
     public void TriggerGameRunTime(bool status) => GameRunTime.Invoke(status);
-
+    //System UI
     public void TriggerUIShowPause(bool status) => UI_Menu.Invoke(status);
 
     public void TriggerGameOver() => UI_GameOver.Invoke();
 
-    //не используется
-    //public void TriggerPlayerControl(bool status) => PlayerControl.Invoke(status);
 
 
 

@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class UIWidgetStaminaBar : MonoBehaviour
 {
+    //child
     [SerializeField] private UI_ProgressBar _progressBar;
     private UI_StatsTracker _parent;
 
@@ -21,9 +22,10 @@ public class UIWidgetStaminaBar : MonoBehaviour
         {
             _eventBus = _parent.EventBus;
             _playerStats = _parent.PlayerStats;
-            _progressBar = GetComponent<UI_ProgressBar>();
+            _progressBar = this.GetComponentInChildren<UI_ProgressBar>();
             _eventBus.PlayerStaminaUpdateUI.AddListener(OnStaminaChanged);
             _isInit = true;
+            Debug.LogError("IsInit");
         }
         return _isInit;
     }
@@ -31,7 +33,7 @@ public class UIWidgetStaminaBar : MonoBehaviour
     //UiRoot может не успеть проинициализироваться, ждем инициализации
     IEnumerator WaitForInit()
     {
-        while (Initialized() != true)
+        while (Initialized() == false)
         {
             yield return null;
         }
@@ -39,15 +41,17 @@ public class UIWidgetStaminaBar : MonoBehaviour
 
     private void OnStaminaChanged()
     {
-        if (_progressBar != null)
+        if (_progressBar != null && _playerStats != null)
         {
-            _progressBar.SetValue(_playerStats.Stamina);
+            _progressBar.SetValue(_playerStats.Stamina, _playerStats.MaxStamina);
         }
     }
 
     private void Awake()
     {
+
         StartCoroutine(WaitForInit());
+
     }
 
     private void OnEnable()

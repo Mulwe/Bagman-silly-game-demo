@@ -12,7 +12,9 @@ public class CharacterStats : ICharacterStats
     private int _stamina;
 
     private float _movementSpeed = 5f;
+
     public float MovementSpeed => _movementSpeed;
+    public int MaxStamina => _maxStamina;
 
     public CharacterStats()
     {
@@ -63,7 +65,7 @@ public class CharacterStats : ICharacterStats
     public void UseStamina(int amount)
     {
         _stamina -= amount;
-        _stamina = (_stamina >= _maxStamina) ? _maxStamina : _stamina;
+        _stamina = (_stamina <= 0) ? 0 : _stamina;
     }
 
     public void RestoreStamina(int amount)
