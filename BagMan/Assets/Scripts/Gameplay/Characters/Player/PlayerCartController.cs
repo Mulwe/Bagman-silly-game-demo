@@ -12,7 +12,7 @@ public class PlayerCartController : MonoBehaviour
     [SerializeField] private int _limitAttachedCarts = 4;
     private int _attachedCarts = 0;
     public int AttachedCarts => _attachedCarts;
-    bool _isLogging = true;
+    bool _isLogging = false;
 
 
     private Animator _animator;
@@ -34,7 +34,11 @@ public class PlayerCartController : MonoBehaviour
         }
     }
 
-
+    private void Log(string message)
+    {
+        if (_isLogging)
+            Debug.Log(message);
+    }
 
     private void OnEnable()
     {
@@ -53,8 +57,7 @@ public class PlayerCartController : MonoBehaviour
     {
         if (_attachedCarts >= _limitAttachedCarts)
         {
-            if (_isLogging == true)
-                Debug.Log($"Player has reached the cart limit. [{_attachedCarts}]/[{_limitAttachedCarts}]", this.gameObject);
+            Log($"Player has reached the cart limit. [{_attachedCarts}]/[{_limitAttachedCarts}] {this.gameObject}");
             return true;
         }
         return false;

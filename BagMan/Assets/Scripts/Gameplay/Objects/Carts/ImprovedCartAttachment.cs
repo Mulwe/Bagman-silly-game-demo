@@ -215,7 +215,7 @@ public class ImprovedCartAttachment : MonoBehaviour
         connectedObject = player;
         OnCartAttached?.Invoke();
 
-        Debug.Log(gameObject.name + " attached to player");
+        //Debug.Log(gameObject.name + " attached to player");
     }
 
     private bool AttachToCart(GameObject cart)
@@ -326,7 +326,7 @@ public class ImprovedCartAttachment : MonoBehaviour
         isAttachedToPlayer = false;
         connectedObject = null;
         OnCartDetached?.Invoke();
-        Debug.Log(gameObject.name + " detached");
+        //Debug.Log(gameObject.name + " detached");
     }
 
     public GameObject IsAttached()

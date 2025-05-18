@@ -68,7 +68,7 @@ public class Gameplay : MonoBehaviour
     private void GameAndSpawnInitialization(GameManager gm)
     {
         _spawner.Initialize();
-        if (_spawner.GetList() != null && _gameManager != null)
+        if (_spawner.GetList() != null && gm != null)
         {
             gm.Init();
             ChangeDefaultPlayerSpeed(_playerSpeed);
@@ -99,7 +99,7 @@ public class Gameplay : MonoBehaviour
     private void OnDisable()
     {
         //remove listeners if init
-        if (_haveListeners)
+        if (_haveListeners && _gameManager != null)
         {
             _gameManager.EventBus.PlayerStatsChanged.RemoveListener(OnPlayerStatsChanged);
             //gm.EventBus.PlayerStatsChanged.RemoveListener(OnPlayerIsOnDropZone);

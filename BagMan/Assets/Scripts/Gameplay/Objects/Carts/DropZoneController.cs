@@ -1,16 +1,16 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class DropZoneController : MonoBehaviour
 {
     BoxCollider2D DropZoneCollider;
-    private GameObject _gameObjectInZone;
 
 
     private Gameplay _gameplay;
     private GameManager _gm;
     private SpawnedObjects _spawner;
+
+    private long _count = 0;
 
     private void Start()
     {
@@ -26,10 +26,7 @@ public class DropZoneController : MonoBehaviour
         _spawner = _gameplay?.GetComponent<SpawnedObjects>();
         if (_spawner == null)
             Debug.Log("_spawner null");
-        if (_gameplay && _spawner)
-        {
-            Debug.Log($"_spawner not null {_spawner.name}");
-        }
+
     }
 
     //корутина уничтожается если выбрасывается исключение
@@ -39,58 +36,31 @@ public class DropZoneController : MonoBehaviour
     }
 
 
-    //spawn behind player's view
-    private void RespwanObject(GameObject objectToRespawn)
-    {
-        List<Vector2> playerViewArea = GetPlayerViewArea();
-        if (_spawner == null)
-            Debug.Log($"Spawner null");
-        if (_spawner != null)
-        {
-            _spawner.ReSpawnObject(objectToRespawn, playerViewArea);
-        }
-    }
 
-    private List<Vector2> GetPlayerViewArea()
-    {
-        Camera camera = Camera.main;
-        List<Vector2> playerViewArea = new List<Vector2>();
-
-        float camHeight = 2f * camera.orthographicSize;
-        float camWidth = camHeight * camera.aspect;
-
-        float minX = camera.transform.position.x - camWidth / 2f;
-        float maxX = camera.transform.position.x + camWidth / 2f;
-        float minY = camera.transform.position.y - camHeight / 2f;
-        float maxY = camera.transform.position.y + camHeight / 2f;
-        playerViewArea.Add(new Vector2(minX, maxY));
-        playerViewArea.Add(new Vector2(maxX, maxY));
-        playerViewArea.Add(new Vector2(minX, minY));
-        playerViewArea.Add(new Vector2(maxX, minY));
-        return playerViewArea;
-    }
 
     //проверка зоны на объекты
     //
     // отстегнуть, засчитать поинт, 
     // телепортировать или уничтожить объект
 
-    private void CartCheck(Collider2D collision)
+    private void TryTeleportCart(Collider2D collision)
     {
         ImprovedCartAttachment obj = collision.gameObject.GetComponent<ImprovedCartAttachment>();
         if (obj != null)
         {
-            // Debug.Log($"Object {obj.name} Attached to {attachedObject?.name}");
             if (obj.IsAttached() != null)
             {
+                //Debug.Log($"цепь разорвана:");
                 obj.DetachChain();
             }
 
-            if (obj.IsAttached() == null)
+            if (obj.IsAttached() == null && _spawner != null)
             {
-
-                RespwanObject(obj.gameObject);
-                Debug.Log("Add point");
+                if (_spawner.RespawnObject(obj.gameObject))
+                {
+                    _count += 1;
+                    Debug.Log($"Add point! Total:{_count}");
+                }
             }
         }
     }
@@ -101,16 +71,9 @@ public class DropZoneController : MonoBehaviour
         {
             if (collision.CompareTag("cart"))
             {
-                CartCheck(collision);
-
-                //Add point + check null
-
-                //пристегнутость тележки
-                //отстегнуть последнюю, засчитать поинт,
-                //телепорт объекта за пределы экрана
+                TryTeleportCart(collision);
             }
         }
-
         else
             Debug.Log("Collision is null");
     }
@@ -128,9 +91,6 @@ public class DropZoneController : MonoBehaviour
 
         Collider2D col = GetComponent<Collider2D>();
         if (col is BoxCollider2D box)
-        {
             Gizmos.DrawWireCube(box.bounds.center, box.bounds.size);
-
-        }
     }
 }
