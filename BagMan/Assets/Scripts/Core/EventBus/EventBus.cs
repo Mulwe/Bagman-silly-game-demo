@@ -19,7 +19,7 @@ public class EventBus
     //UI
     public UnityEvent PlayerStaminaUpdateUI { get; } = new();
     public UnityEvent PlayerSpeedUpdateUI { get; } = new();
-    public UnityEvent PlayerHealthUpdateUI { get; } = new();
+    public UnityEvent<float> PlayerCountUpdateUI = new();
     public UnityEvent TemperatureChangedUI { get; } = new();
 
 
@@ -37,7 +37,7 @@ public class EventBus
     //UI Updates
     public void TriggerPlayerStaminaUpdateUI() => PlayerStaminaUpdateUI.Invoke();
     public void TriggerPlayerSpeedUpdateUI() => PlayerSpeedUpdateUI.Invoke();
-    public void TriggerPlayerHealthUpdateUI() => PlayerHealthUpdateUI.Invoke();
+    public void TriggerPlayerCountUpdateUI(float count) => PlayerCountUpdateUI.Invoke(count);
     public void TriggerTemperatureChangedUI() => TemperatureChangedUI.Invoke();
     //System Game events
     public void TriggerExitGame() => GameExit.Invoke();
@@ -60,7 +60,7 @@ public class EventBus
         PlayerStatsChanged.RemoveAllListeners();
         PlayerStaminaUpdateUI.RemoveAllListeners();
         PlayerSpeedUpdateUI.RemoveAllListeners();
-        PlayerHealthUpdateUI.RemoveAllListeners();
+        PlayerCountUpdateUI.RemoveAllListeners();
         TemperatureChangedUI.RemoveAllListeners();
         UI_Menu.RemoveAllListeners();
         UI_GameOver.RemoveAllListeners();

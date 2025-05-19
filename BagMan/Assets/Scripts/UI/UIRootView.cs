@@ -7,7 +7,7 @@ public class UIRootView : MonoBehaviour
     [SerializeField] private GameObject _loadingScreen;
     [SerializeField] private GameObject _tipsScreen;
 
-    private float delay = 3f;
+    private float delay = 2f;
     // [SerializeField] private Gameobject _UIMenu;
 
     private void Awake()

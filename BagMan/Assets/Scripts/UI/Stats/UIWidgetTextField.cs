@@ -17,7 +17,7 @@ public class UIWidgetTextField : MonoBehaviour
     [Header("UI HUD Container names of fields")]
     public const string HUD_Temerature = "HUD_Temperature";
     public const string HUD_Speed = "HUD_Speed";
-    public const string HUD_Health = "HUD_Health";
+    public const string HUD_Count = "HUD_Count";
 
     enum ListenerActions
     {
@@ -29,6 +29,7 @@ public class UIWidgetTextField : MonoBehaviour
     {
         if (_parent == null)
             _parent = GetComponentInParent<UI_StatsTracker>();
+
         if (_parent != null && _parent.IsInit && _isInit == false)
         {
             _eventBus = _parent.EventBus;
@@ -57,9 +58,9 @@ public class UIWidgetTextField : MonoBehaviour
 
             switch (obj.ParentName)
             {
-                case HUD_Health:
+                case HUD_Count:
                     {
-                        ModifyUnityEvent(eventBus.PlayerHealthUpdateUI, OnPlayerHealthChanged, state);
+                        ModifyUnityEvent(eventBus.PlayerCountUpdateUI, OnPlayerCountChanged, state);
                     }
                     break;
                 case HUD_Temerature:
@@ -89,18 +90,25 @@ public class UIWidgetTextField : MonoBehaviour
             unityEvent.RemoveListener(callback);
     }
 
-
-    private void OnPlayerHealthChanged()
+    private void ModifyUnityEvent(UnityEvent<float> unityEvent, UnityAction<float> callback, bool add)
     {
-        if (_childTextData != null && _playerStats != null)
+        if (unityEvent == null || callback == null) return;
+
+        if (add)
+            unityEvent.AddListener(callback);
+        else
+            unityEvent.RemoveListener(callback);
+    }
+
+    private void OnPlayerCountChanged(float count)
+    {
+        if (_childTextData != null)
         {
-            _childTextData.SetHealth(_playerStats.Health);
-            //Debug.Log($"health is changed");
+            _childTextData.SetCount(count);
         }
     }
     private void OnTemperatureChanged()
     {
-        // передача из другого объекта
         if (_childTextData != null)
         {
             //Debug.Log("Tempreture is triggered");
@@ -112,8 +120,7 @@ public class UIWidgetTextField : MonoBehaviour
     {
         if (_childTextData != null && _playerStats != null)
         {
-            _childTextData.SetHealth(_playerStats.GetCharacterSpeed());
-            //Debug.Log("Player Speed changed");
+            _childTextData.SetSpeed(_playerStats.GetCharacterSpeed());
         }
     }
 

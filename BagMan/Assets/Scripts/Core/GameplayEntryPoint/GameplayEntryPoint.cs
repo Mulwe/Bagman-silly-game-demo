@@ -122,6 +122,10 @@ public class GameplayEntryPoint : MonoBehaviour
 
     }
 
-
+    public void OnDisable()
+    {
+        if (_gm != null)
+            _gm.EventBus.GameExit.RemoveListener(OnCloseApplication);
+    }
 }
 

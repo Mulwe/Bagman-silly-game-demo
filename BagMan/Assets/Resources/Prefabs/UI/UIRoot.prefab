@@ -889,7 +889,7 @@ GameObject:
   - component: {fileID: 1645214612580698978}
   - component: {fileID: 8758819735744747874}
   m_Layer: 5
-  m_Name: HUD_Health
+  m_Name: HUD_Count
   m_TagString: UI_HUD_Property
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2310,7 +2310,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'mood:'
+  m_text: 'Count:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f665cbb4e4393794f802ac3ed5b6caaf, type: 2}
   m_sharedMaterial: {fileID: -8725257009111011359, guid: f665cbb4e4393794f802ac3ed5b6caaf,
@@ -2755,10 +2755,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: /
+  m_text: 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: d360b27638e82da4dbae704988ab36a9, type: 2}
-  m_sharedMaterial: {fileID: 8867397155606275674, guid: d360b27638e82da4dbae704988ab36a9,
+  m_fontAsset: {fileID: 11400000, guid: f665cbb4e4393794f802ac3ed5b6caaf, type: 2}
+  m_sharedMaterial: {fileID: -8725257009111011359, guid: f665cbb4e4393794f802ac3ed5b6caaf,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}

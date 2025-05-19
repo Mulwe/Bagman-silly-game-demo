@@ -82,6 +82,9 @@ public class GameEntryPoint
         // Внедряем зависимости. Null reference если не прокинуть зависимости.
         sceneEntryPoint.Inject(uiReference, buttonHandler, uiHUD,
             playerController, playerEventHandler, gameplay, _bus);
+        _uiRoot.HideLoadingScreen();
+        _uiRoot.ShowTipsScreen();
+        _uiRoot.FadingTipsScreen(1);
         sceneEntryPoint.Run();
     }
 
@@ -95,11 +98,6 @@ public class GameEntryPoint
         yield return new WaitForSeconds(1f);
 
         SceneEntryPoint();
-
-        _uiRoot.HideLoadingScreen();
-        _uiRoot.ShowTipsScreen();
-        _uiRoot.FadingTipsScreen(1);
-
     }
 
     private IEnumerator LoadScene(string sceneName)

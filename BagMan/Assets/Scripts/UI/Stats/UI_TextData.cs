@@ -22,7 +22,7 @@ public class UI_TextData : MonoBehaviour
     public const string HUD_Stamina = "HUD_Stamina";
     public const string HUD_Temerature = "HUD_Temperature";
     public const string HUD_Speed = "HUD_Speed";
-    public const string HUD_Health = "HUD_Health";
+    public const string HUD_Count = "HUD_Count";
 
 
 
@@ -54,16 +54,11 @@ public class UI_TextData : MonoBehaviour
             SetText($"{value:F1}");
     }
 
-    public void SetHealth(float value)
+    public void SetCount(float value)
     {
-        if (transform.parent.name.Equals(HUD_Health))
+        if (transform.parent.name.Equals(HUD_Count))
         {
-            if (value > 50)
-                SetText("/");
-            else if (value < 50 && value > 1)
-                SetText(";");
-            else if (value == 0 || value < 0)
-                SetText("\\");
+            SetText($"{value:F0}");
         }
     }
     private void OnEnable()

@@ -583,8 +583,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7014790fcccf5f842a0a55031d9ee9c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _control: {fileID: 6497625707932550861}
   _spawner: {fileID: 752198100}
+  _playerSpeed: 8
 --- !u!114 &752198100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -599,7 +599,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _objPrefab: {fileID: 6860246072868031059, guid: e9054f67a8906904297aef249649a046,
     type: 3}
-  _amount: 5
+  _amount: 10
   _spawnZone: {fileID: 4464816732817902809}
   _listObjects: []
 --- !u!1 &914699618
@@ -8847,7 +8847,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 0
-  m_Material: {fileID: 6200000, guid: 202180469fd336a46aff1478ce1812a6, type: 2}
+  m_Material: {fileID: 6200000, guid: 59ebab20054141f43bab8a10fd1f7306, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -9136,6 +9136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _control: {fileID: 0}
+  StaminaDrain: 10
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

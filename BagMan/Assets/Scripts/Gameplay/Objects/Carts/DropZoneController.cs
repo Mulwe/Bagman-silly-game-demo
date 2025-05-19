@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class DropZoneController : MonoBehaviour
@@ -11,6 +10,7 @@ public class DropZoneController : MonoBehaviour
     private SpawnedObjects _spawner;
 
     private long _count = 0;
+    public long Count => _count;
 
     private void Start()
     {
@@ -26,15 +26,8 @@ public class DropZoneController : MonoBehaviour
         _spawner = _gameplay?.GetComponent<SpawnedObjects>();
         if (_spawner == null)
             Debug.Log("_spawner null");
-
+        _gm = _gameplay.GameManager;
     }
-
-    //корутина уничтожается если выбрасывается исключение
-    IEnumerator InitWithDelay()
-    {
-        yield return new WaitForSeconds(1f);
-    }
-
 
 
 
@@ -50,7 +43,6 @@ public class DropZoneController : MonoBehaviour
         {
             if (obj.IsAttached() != null)
             {
-                //Debug.Log($"цепь разорвана:");
                 obj.DetachChain();
             }
 
@@ -59,7 +51,11 @@ public class DropZoneController : MonoBehaviour
                 if (_spawner.RespawnObject(obj.gameObject))
                 {
                     _count += 1;
-                    Debug.Log($"Add point! Total:{_count}");
+
+                    if (_gm == null)
+                        _gm = _gameplay.GameManager;
+                    if (_gm != null && _gm.EventBus != null)
+                        _gm.EventBus.TriggerPlayerCountUpdateUI(_count);
                 }
             }
         }
@@ -76,13 +72,6 @@ public class DropZoneController : MonoBehaviour
         }
         else
             Debug.Log("Collision is null");
-    }
-
-
-
-    private void OnDisable()
-    {
-
     }
 
     private void OnDrawGizmosSelected()

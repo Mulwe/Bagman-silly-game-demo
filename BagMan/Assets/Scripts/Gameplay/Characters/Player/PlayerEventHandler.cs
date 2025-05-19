@@ -45,13 +45,12 @@ public class PlayerEventHandler : MonoBehaviour
 
     public void Run()
     {
-        //Debug.Log("Player handler is run");
-
+        // RefreshUI на всякий случай
         StartCoroutine(PlayerStatsCoroutine());
-
+        //запуск условий
     }
 
-    void UpdatePlayerSpeed(float newSpeed)
+    private void UpdatePlayerSpeed(float newSpeed)
     {
         if (_playerStats != null && _control)
         {
@@ -60,7 +59,7 @@ public class PlayerEventHandler : MonoBehaviour
         }
     }
 
-    void SpeedChangeCondition()
+    private void SpeedChangeCondition()
     {
         if (_playerCartData == null || _playerStats == null || _control == null)
             return;
@@ -75,9 +74,8 @@ public class PlayerEventHandler : MonoBehaviour
     }
 
 
-    void StaminaDrainCondition()
+    private void StaminaDrainCondition()
     {
-
         float delay = 1.0f;
 
         if (!_canRepeat || _playerCartData == null)
@@ -89,12 +87,10 @@ public class PlayerEventHandler : MonoBehaviour
             return;
 
         PlayerIsMovingWithCarts();
-
     }
 
-    void PlayerIsMovingWithCarts()
+    private void PlayerIsMovingWithCarts()
     {
-
         float staminaRateDrain = _playerCartData.AttachedCarts * (_playerStats.MaxStamina / 100);
         int staminaToDrain = Mathf.RoundToInt(StaminaDrain * staminaRateDrain);
 
@@ -114,21 +110,17 @@ public class PlayerEventHandler : MonoBehaviour
         {
             while (_isInit)
             {
-                //!!!!  
                 RefreshUI();
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(0.5f);
             }
         }
     }
-
-
 
     private void OnDisable()
     {
         if (_isInit)
         {
             //отписка
-
             _isInit = false;
         }
     }
@@ -141,8 +133,6 @@ public class PlayerEventHandler : MonoBehaviour
             StaminaDrainCondition();
         }
     }
-
-
 
     private void Update()
     {
@@ -158,19 +148,14 @@ public class PlayerEventHandler : MonoBehaviour
                     _playerStats.RestoreStamina(StaminaDrain * 2);
                 regenTimer = 0f;
             }
-
         }
     }
 
 
     public void RefreshUI()
     {
-        _eventBus.TriggerPlayerHealthUpdateUI();
         _eventBus.TriggerTemperatureChangedUI();
         _eventBus.TriggerPlayerStaminaUpdateUI();
         _eventBus.TriggerPlayerSpeedUpdateUI();
     }
-
-
-
 }

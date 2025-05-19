@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -17,9 +18,11 @@ public class Gameplay : MonoBehaviour
     public SpawnedObjects SpawnedObjects => _spawner;
     public GameManager GameManager => _gameManager;
 
+    public Timer LevelTimer;
 
-    private int Points = 0;
-    private bool _Timeout = false;
+
+
+    private float _timeDuration = 60f;
 
     public void Run()
     {
@@ -34,34 +37,54 @@ public class Gameplay : MonoBehaviour
     public void Initialize(GameManager gm)
     {
         _gameManager = gm;
-
+        if (gm == null)
+        {
+            Debug.Log($"{this}: gm is null");
+        }
         if (gm?.BtnHandler == null || gm?.PlayerController == null)
-        {
             Debug.LogError("Gameplay: References Init error");
-        }
         else
-        {
             GameAndSpawnInitialization(gm);
-        }
     }
 
     public void StartGameplay()
     {
         if (_isStarted && _initialized && _gameManager != null)
         {
+            StartCoroutine(DelayTimer(LevelTimer, 3));
 
-            // событие игрок или тележка на поле
+            // подготовка перед запуском
+            // можно вывести что-то для игрока или
+            // настройки
 
-            // отстегнуть
-            // переместить
-            // добавить очко
+            /**/
+        }
+    }
+    IEnumerator DelayTimer(Timer timer, float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        timer.Start();
+    }
 
+
+    public void OnPlayerStatsChanged()
+    {
+        if (_gameManager != null)
+        {
+            if (_dropZoneController != null)
+                _gameManager.EventBus.TriggerPlayerCountUpdateUI(_dropZoneController.Count);
+            _gameManager.EventBus.TriggerPlayerStaminaUpdateUI();
+            _gameManager.EventBus.TriggerPlayerSpeedUpdateUI();
         }
     }
 
-    IEnumerator DropZoneTracker()
+    private void HandleLevelTimerFinished()
     {
-        yield return null;
+        _dropZoneController = GetComponentInChildren<DropZoneController>();
+        if (_dropZoneController != null)
+            Debug.Log($"Time out! Your Score is [{_dropZoneController.Count}]");
+        if (LevelTimer != null)
+            LevelTimer.Stop();
     }
 
     //Listener OnPlayerStatsChanged
@@ -72,15 +95,18 @@ public class Gameplay : MonoBehaviour
         {
             gm.Init();
             ChangeDefaultPlayerSpeed(_playerSpeed);
-            gm.EventBus.PlayerStatsChanged.AddListener(OnPlayerStatsChanged);
-            //gm.EventBus.PlayerStatsChanged.AddListener(OnPlayerIsOnDropZone);
-            _haveListeners = true;
+            LevelTimer = new Timer(_timeDuration);
+
+            AddListeners();
+
             _isStarted = true;
             _initialized = true;
         }
         else
             Debug.Log($"{this}: failed in intialization!");
     }
+
+
 
     private void ChangeDefaultPlayerSpeed(float newSpeed)
     {
@@ -89,21 +115,33 @@ public class Gameplay : MonoBehaviour
         {
             if (newSpeed > 0)
             {
-
                 gm.PlayerStats.SetCharacterSpeed(newSpeed);
                 gm.PlayerController.UpdatePlayerSpeed(newSpeed);
             }
         }
     }
 
-    private void OnDisable()
+    private void AddListeners()
     {
-        //remove listeners if init
+        GameManager gm = _gameManager;
+        if (gm != null)
+            gm.EventBus.PlayerStatsChanged.AddListener(OnPlayerStatsChanged);
+        LevelTimer.OnTimerComplete += HandleLevelTimerFinished;
+        _haveListeners = true;
+    }
+
+    private void RemoveListeners()
+    {
         if (_haveListeners && _gameManager != null)
         {
             _gameManager.EventBus.PlayerStatsChanged.RemoveListener(OnPlayerStatsChanged);
-            //gm.EventBus.PlayerStatsChanged.RemoveListener(OnPlayerIsOnDropZone);
+            LevelTimer.OnTimerComplete -= HandleLevelTimerFinished;
         }
+    }
+
+    private void OnDisable()
+    {
+        RemoveListeners();
     }
 
     private void OnValidate()
@@ -114,18 +152,14 @@ public class Gameplay : MonoBehaviour
 
     private void Update()
     {
-
+        if (LevelTimer != null && LevelTimer.GetRemainingTime() > 0)
+        {
+            LevelTimer.Update();
+        }
     }
 
 
 
-    public void OnPlayerStatsChanged()
-    {
-        //very lazy way
-        _gameManager.EventBus.TriggerPlayerHealthUpdateUI();
-        _gameManager.EventBus.TriggerPlayerStaminaUpdateUI();
-        _gameManager.EventBus.TriggerPlayerSpeedUpdateUI();
-    }
 
 }
 
