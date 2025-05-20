@@ -1,4 +1,3 @@
-using UnityEngine;
 using UnityEngine.Events;
 //using UnityEngine.Events; UnityEvent много минусов 
 
@@ -15,6 +14,7 @@ public class EventBus
     public UnityEvent GamePause { get; } = new();
     public UnityEvent GameResume { get; } = new();
     public UnityEvent GameExit { get; } = new UnityEvent();
+    public UnityEvent StartTask { get; } = new UnityEvent();
 
     //UI
     public UnityEvent PlayerStaminaUpdateUI { get; } = new();
@@ -26,11 +26,10 @@ public class EventBus
     public UnityEvent PlayerStatsChanged { get; } = new();
 
     //
-    public UnityEvent<GameObject> ObjectOnDropZone { get; } = new();
-    public UnityEvent RespawnObject { get; } = new();
+    public UnityEvent<Timer> Timer { get; } = new();
     public UnityEvent AddPoint { get; } = new();
 
-    public void TriggerObjectOnDropZone(GameObject target) => ObjectOnDropZone.Invoke(target);
+    public void TriggerTimer(Timer timer) => Timer.Invoke(timer);
 
     //
     public void TriggerPlayerStatsChanged() => PlayerStatsChanged.Invoke();
@@ -39,6 +38,8 @@ public class EventBus
     public void TriggerPlayerSpeedUpdateUI() => PlayerSpeedUpdateUI.Invoke();
     public void TriggerPlayerCountUpdateUI(float count) => PlayerCountUpdateUI.Invoke(count);
     public void TriggerTemperatureChangedUI() => TemperatureChangedUI.Invoke();
+
+    public void TriggerStartTask() => StartTask.Invoke();
     //System Game events
     public void TriggerExitGame() => GameExit.Invoke();
     public void TriggerPauseGame() => GamePause.Invoke();
@@ -55,8 +56,9 @@ public class EventBus
 
     public void RemoveAllListeners()
     {
-
-
+        AddPoint.RemoveAllListeners();
+        Timer.RemoveAllListeners();
+        StartTask.RemoveAllListeners();
         PlayerStatsChanged.RemoveAllListeners();
         PlayerStaminaUpdateUI.RemoveAllListeners();
         PlayerSpeedUpdateUI.RemoveAllListeners();

@@ -17,11 +17,9 @@ public class Gameplay : MonoBehaviour
     private bool _haveListeners = false;
     public SpawnedObjects SpawnedObjects => _spawner;
     public GameManager GameManager => _gameManager;
+    public bool IsInitialized => _initialized && _isStarted;
 
     public Timer LevelTimer;
-
-
-
     private float _timeDuration = 60f;
 
     public void Run()
@@ -53,11 +51,6 @@ public class Gameplay : MonoBehaviour
         {
             StartCoroutine(DelayTimer(LevelTimer, 3));
 
-            // подготовка перед запуском
-            // можно вывести что-то для игрока или
-            // настройки
-
-            /**/
         }
     }
     IEnumerator DelayTimer(Timer timer, float seconds)
@@ -65,7 +58,6 @@ public class Gameplay : MonoBehaviour
         yield return new WaitForSeconds(seconds);
         timer.Start();
     }
-
 
     public void OnPlayerStatsChanged()
     {

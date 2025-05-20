@@ -139,11 +139,24 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
         return hit == null;
     }
 
-    // SpawnObject behind player's view. inside spawned area
-    public bool RespawnObject(GameObject objOnScene)
+    // respawn or destroy object
+    public bool RespawnObject(GameObject objOnScene, bool UseRespawnLogic)
     {
         if (_spawnZone == null || objOnScene == null) return false;
+        if (UseRespawnLogic)
+        {
+            return SpawnObjectsOnScene(objOnScene);
+        }
+        else
+        {
+            StartCoroutine(DeleteCollectedObject(objOnScene));
+            return true;
+        }
+    }
 
+
+    private bool SpawnObjectsOnScene(GameObject obj)
+    {
         List<Vector2> spawnArea = _spawnZone.GetSpawnZone();
         List<Vector2> bannedArea = _spawnZone.GetDropZone();
 
@@ -153,15 +166,14 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
         for (int i = 0; i < maxAttemps; i++)
         {
             Vector2 spot;
-            //GetPlayerViewArea(out CameraViewArea);
             spot.x = Random.Range(_spawnZone.GetX(spawnArea).minX, _spawnZone.GetX(spawnArea).maxX);
             spot.y = Random.Range(_spawnZone.GetY(spawnArea).minY, _spawnZone.GetY(spawnArea).maxY);
 
-            if (!_spawnZone.IsPointInRectangle(bannedArea, spot) && !WouldBeVisibleAtPosition(objOnScene, spot))
+            if (!_spawnZone.IsPointInRectangle(bannedArea, spot) && !WouldBeVisibleAtPosition(obj, spot))
             {
-                if (IsObstacleFree(objOnScene, spot))
+                if (IsObstacleFree(obj, spot))
                 {
-                    StartCoroutine(HideAndMove(objOnScene, spot));
+                    StartCoroutine(HideAndMove(obj, spot));
                     _spawnZone.SpawnColliderIsActive(true);
                     return true;
                 }
@@ -171,7 +183,14 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
         return false;
     }
 
-    bool WouldBeVisibleAtPosition(GameObject obj, Vector2 position)
+    private IEnumerator DeleteCollectedObject(GameObject obj)
+    {
+        yield return HideAndMove(obj, new Vector3(-99, -99, -99));
+        DestroyObject(obj);
+        yield return null;
+    }
+
+    private bool WouldBeVisibleAtPosition(GameObject obj, Vector2 position)
     {
         Vector3 originalPosition = obj.transform.position;
         obj.transform.position = new Vector3(position.x, position.y, originalPosition.z);
@@ -182,15 +201,14 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     }
 
 
-
     //пр€чу объект от игрока пока не отвернетс€
-    IEnumerator HideAndMove(GameObject obj, Vector2 spot)
+    private IEnumerator HideAndMove(GameObject obj, Vector3 spot)
     {
         SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
         if (spriteRenderer == null) yield break;
 
         spriteRenderer.enabled = false;
-        yield return null;//дл€ обновлени€ bounds
+        yield return null;  //дл€ обновлени€ bounds
 
         Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
         if (rb != null)
@@ -207,6 +225,7 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
             yield return new WaitForSeconds(0.1f);
         }
         spriteRenderer.enabled = true;
+
     }
 
     //учитывает только размер спрайта и или колайдера
@@ -241,46 +260,16 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     }
 
 
-    //PlayerView box 
-    private void GetPlayerViewArea(out List<Vector2> playerViewArea)
-    {
-        Camera camera = Camera.main;
-
-        float camHeight = 2f * camera.orthographicSize;
-        float camWidth = camHeight * camera.aspect;
-
-        float minX = camera.transform.position.x - camWidth / 2f;
-        float maxX = camera.transform.position.x + camWidth / 2f;
-        float minY = camera.transform.position.y - camHeight / 2f;
-        float maxY = camera.transform.position.y + camHeight / 2f;
-        playerViewArea = GetPlayerViewRectange(minX, maxX, minY, maxY);
-        //size = new Vector2(maxX - minX, maxY - minY);
-    }
-
-    private List<Vector2> GetPlayerViewRectange(float minX, float maxX, float minY, float maxY)
-    {
-        List<Vector2> playerViewArea = new List<Vector2>();
-        playerViewArea.Add(new Vector2(minX, maxY));
-        playerViewArea.Add(new Vector2(maxX, maxY));
-        playerViewArea.Add(new Vector2(minX, minY));
-        playerViewArea.Add(new Vector2(maxX, minY));
-        return playerViewArea;
-    }
-
-
-
-
-
     //удаление объекта со сцены и списка
     // при манипул€ции со списокм нельз€ исользовать foreach
-    private void Destroy(GameObject obj)
+    private void DestroyObject(GameObject obj)
     {
         if (_listObjects == null || obj == null || _listObjects.Count == 0)
             return;
-        _listObjects.RemoveAll(item =>
-        item != null && item.GetInstanceID() == obj.GetInstanceID());
+        _listObjects.RemoveAll(item => item == obj);
 
         UnityEngine.Object.Destroy(obj);
+        //Debug.Log("Obj deleted");
     }
 
 

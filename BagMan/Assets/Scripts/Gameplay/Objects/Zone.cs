@@ -31,7 +31,9 @@ public class Zone : MonoBehaviour, IInitializable
     public void SpawnColliderIsActive(bool status)
     {
         if (_spawnZone != null)
-            _spawnZone.gameObject.SetActive(status);
+        {
+            _spawnZone.enabled = status;
+        }
     }
 
     public List<Vector2> GetSpawnZone()
