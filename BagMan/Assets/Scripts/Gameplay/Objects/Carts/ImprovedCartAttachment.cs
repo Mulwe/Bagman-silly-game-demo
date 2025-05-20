@@ -271,22 +271,22 @@ public class ImprovedCartAttachment : MonoBehaviour
         }
 
         joint = gameObject.AddComponent<HingeJoint2D>();
-        // Important: disable auto-configure
+        //Important: disable auto-configure
         joint.autoConfigureConnectedAnchor = false;
         joint.connectedBody = otherRb;
 
-        // Configure joint
+        //Configure joint
         joint.anchor = frontPoint.localPosition;
         joint.connectedAnchor = otherCart.backPoint.localPosition;
 
-        // Add some damping to reduce oscillation
+        //add some damping to reduce oscillation
         joint.useMotor = true;
         JointMotor2D motor = new JointMotor2D();
-        motor.maxMotorTorque = 10f;  // Adjust as needed
+        motor.maxMotorTorque = 10f;  // adjust as needed
         motor.motorSpeed = 0;
         joint.motor = motor;
 
-        // Stabilize joint
+        //stabilize Joint
         joint.useLimits = true;
         JointAngleLimits2D limits = new JointAngleLimits2D();
         limits.min = -jointAngleLimit;
@@ -296,7 +296,6 @@ public class ImprovedCartAttachment : MonoBehaviour
 
     void Detach()
     {
-        //higher in the scope because it's needed for updating the cart changes
         PlayerCartController playerController = connectedObject.GetComponent<PlayerCartController>();
 
         if (joint != null)
@@ -321,7 +320,7 @@ public class ImprovedCartAttachment : MonoBehaviour
             Destroy(joint);
             joint = null;
         }
-        // Update state
+
         isAttached = false;
         isAttachedToPlayer = false;
         connectedObject = null;
@@ -336,11 +335,11 @@ public class ImprovedCartAttachment : MonoBehaviour
         return null;
     }
 
-    // Detach entire chain from this cart forward
+
     // Recursively detach the chain
     public void DetachChain()
     {
-        // First detach this cart
+        //detach this cart first
         Detach();
         Collider2D[] cartColliders = Physics2D.OverlapCircleAll(backPoint.position, 0.5f, cartLayer);
         foreach (Collider2D cartCollider in cartColliders)
