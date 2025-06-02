@@ -22,7 +22,7 @@ public class UI_StatsTracker : MonoBehaviour
     {
         _EventBus = gm.EventBus;
         _gameManager = gm;
-        //playerStats еще не инициализированы
+        //playerStats not init yet
         StartCoroutine(WaitInitialization());
     }
 
@@ -68,5 +68,6 @@ public class UI_StatsTracker : MonoBehaviour
         AllProperties.Clear();
         AllProperties = null;
     }
+
 
 }

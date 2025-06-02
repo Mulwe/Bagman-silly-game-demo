@@ -59,7 +59,6 @@ public class Timer
         return Math.Max(_duration - _spanTime, 0f);
     }
 
-
     public float GetProgress01()
     {
         // 0.0 to 1.0f

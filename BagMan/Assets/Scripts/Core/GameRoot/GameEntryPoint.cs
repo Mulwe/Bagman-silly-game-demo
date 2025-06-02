@@ -71,7 +71,7 @@ public class GameEntryPoint
         //(true) для поиска включая скрытые объекты 
         var uiReference = _uiRoot.GetComponentInChildren<UI_Reference>(true);
         var buttonHandler = _uiRoot.GetComponentInChildren<ButtonHandler>(true);
-        var uiHUD = _uiRoot.GetComponentInChildren<UI_StatsTracker>();
+        var uiHUD = _uiRoot.GetComponentInChildren<UI_StatsTracker>(true);
         //данный код в DontDestroyOnLoad поэтому достаем объекты главной сцены через Object
         var playerController = Object.FindFirstObjectByType<PlayerController>();
         var gameplay = Object.FindFirstObjectByType<Gameplay>();
@@ -85,6 +85,7 @@ public class GameEntryPoint
         _uiRoot.HideLoadingScreen();
         _uiRoot.ShowTipsScreen();
         _uiRoot.FadingTipsScreen(1);
+        _uiRoot.ShowPlayerHud();
         sceneEntryPoint.Run();
     }
 

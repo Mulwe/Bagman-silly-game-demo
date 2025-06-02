@@ -6,6 +6,11 @@ public class UIRootView : MonoBehaviour
 {
     [SerializeField] private GameObject _loadingScreen;
     [SerializeField] private GameObject _tipsScreen;
+    [SerializeField] private GameObject _levelCompleteScreen;
+
+    [Header("Main HUD:")]
+    [SerializeField] private GameObject _playerHud;
+
 
     private float delay = 2f;
     // [SerializeField] private Gameobject _UIMenu;
@@ -14,38 +19,49 @@ public class UIRootView : MonoBehaviour
     {
         HideLoadingScreen();
         HideTipsScreen();
+        HideLevelCompletedScreen();
     }
-
 
     public void ShowLoadingScreen()
     {
-        _loadingScreen.SetActive(true);
+        ToogleObjectActive(_loadingScreen, true);
     }
 
     public void HideLoadingScreen()
     {
-        _loadingScreen.SetActive(false);
+        ToogleObjectActive(_loadingScreen, false);
     }
 
-    public Image GetImage()
-    {
-        if (_tipsScreen != null)
-        {
-            var Image = _tipsScreen.GetComponent<Image>();
-            if (Image != null)
-                return Image;
-        }
-        return null;
-    }
     public void ShowTipsScreen()
     {
-        _tipsScreen.SetActive(true);
+        ToogleObjectActive(_tipsScreen, true);
     }
 
     public void HideTipsScreen()
     {
-        _tipsScreen.SetActive(false);
+        ToogleObjectActive(_tipsScreen, false);
     }
+
+    public void ShowLevelCompletedScreen()
+    {
+        ToogleObjectActive(_levelCompleteScreen, true);
+    }
+
+    public void HideLevelCompletedScreen()
+    {
+        ToogleObjectActive(_levelCompleteScreen, false);
+    }
+
+    public void ShowPlayerHud()
+    {
+        ToogleObjectActive(_playerHud, true);
+    }
+
+    public void HidePlayerHud()
+    {
+        ToogleObjectActive(_playerHud, false);
+    }
+
 
     public void FadingTipsScreen(int fadeTimeSeconds)
     {
@@ -54,6 +70,11 @@ public class UIRootView : MonoBehaviour
         {
             StartCoroutine(FadeOutCoroutine(image, fadeTimeSeconds));
         }
+    }
+
+    private void ToogleObjectActive(GameObject obj, bool status)
+    {
+        obj.SetActive(status);
     }
 
     private IEnumerator FadeOutCoroutine(Image image, float fadeTime)
@@ -74,6 +95,17 @@ public class UIRootView : MonoBehaviour
                 originalColor.a * brightness);
             yield return null;
         }
-        HideTipsScreen();
+        ShowTipsScreen();
+    }
+
+    private Image GetImage()
+    {
+        if (_tipsScreen != null)
+        {
+            var Image = _tipsScreen.GetComponent<Image>();
+            if (Image != null)
+                return Image;
+        }
+        return null;
     }
 }

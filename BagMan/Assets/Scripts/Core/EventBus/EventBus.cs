@@ -22,16 +22,23 @@ public class EventBus
     public UnityEvent<float> PlayerCountUpdateUI = new();
     public UnityEvent TemperatureChangedUI { get; } = new();
 
-
     public UnityEvent PlayerStatsChanged { get; } = new();
 
-    //
     public UnityEvent<Timer> Timer { get; } = new();
+    public UnityEvent TimerReceived { get; } = new();
     public UnityEvent AddPoint { get; } = new();
 
-    public void TriggerTimer(Timer timer) => Timer.Invoke(timer);
+    public UnityEvent GameLevelComplete { get; } = new();
+    public UnityEvent<ulong> GameCountScore { get; } = new();
 
-    //
+
+    public void TriggerGameLevelComplete() => GameLevelComplete.Invoke();
+    public void TriggerGameCountScore(ulong score) => GameCountScore.Invoke(score);
+
+    //Timer triggers
+    public void TriggerTimer(Timer timer) => Timer.Invoke(timer);
+    public void TriggerTimerReceived() => TimerReceived.Invoke();
+
     public void TriggerPlayerStatsChanged() => PlayerStatsChanged.Invoke();
     //UI Updates
     public void TriggerPlayerStaminaUpdateUI() => PlayerStaminaUpdateUI.Invoke();
@@ -50,12 +57,12 @@ public class EventBus
     public void TriggerUIShowPause(bool status) => UI_Menu.Invoke(status);
     public void TriggerGameOver() => UI_GameOver.Invoke();
 
-
-
-
-
     public void RemoveAllListeners()
     {
+        GameLevelComplete.RemoveAllListeners();
+        GameCountScore.RemoveAllListeners();
+
+        TimerReceived.RemoveAllListeners();
         AddPoint.RemoveAllListeners();
         Timer.RemoveAllListeners();
         StartTask.RemoveAllListeners();

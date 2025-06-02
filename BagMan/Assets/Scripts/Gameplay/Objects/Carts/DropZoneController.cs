@@ -14,10 +14,12 @@ public class DropZoneController : MonoBehaviour
     private GameManager _gm;
     private SpawnedObjects _spawner;
 
-    private long _count = 0;
-    public long Count => _count;
+    private ulong _count = 0;
+    public ulong Count => _count;
     private CartBehaviorOptions _behavior;
     public bool IsRespawning => _behavior.IsRespawning;
+
+    private Coroutine _response;
 
 
     private void Start()
@@ -45,7 +47,6 @@ public class DropZoneController : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
         _gm = _gameplay.GameManager;
-        // Debug.Log("OK");
         AddListeners();
     }
 
@@ -90,22 +91,48 @@ public class DropZoneController : MonoBehaviour
 
     void ShowMessage()
     {
-        Debug.Log(" first time");
-
-        StartCoroutine(WaitParameters());
+        //Debug.Log("Timer Triggered by cart");
+        StartCoroutine(WaitParametersAndTriggerTimer());
     }
 
 
-    IEnumerator WaitParameters()
+    IEnumerator WaitParametersAndTriggerTimer()
     {
-        while (_gm == null || _gm.EventBus == null || _gm.GamePlay == null
-            || _gm.GamePlay.LevelTimer == null)
+        while (_gm == null || _gm.EventBus == null || _gm.GamePlay == null ||
+            _gm.GamePlay.LevelTimer == null)
         {
             yield return new WaitForSeconds(0.1f);
         }
         _gm.EventBus?.TriggerTimer(_gm.GamePlay?.LevelTimer);
-        Debug.Log("Success");
+
+        // ждем ответ с той стороны
+        _response = StartCoroutine(CheckResponse());
+        yield return _response;
     }
+
+    IEnumerator CheckResponse()
+    {
+        //  waiting
+        _gm.EventBus.TimerReceived.AddListener(isEventReceived);
+        float start = Time.time;
+        while (Time.time - start < 5f)
+        {
+            _gm.EventBus?.TriggerTimer(_gm.GamePlay?.LevelTimer);
+            yield return new WaitForSeconds(0.1f);
+        }
+        _gm.EventBus.TimerReceived.RemoveListener(isEventReceived);
+    }
+
+    void isEventReceived()
+    {
+        if (_response != null)
+        {
+            StopCoroutine(_response);
+            _response = null;
+        }
+    }
+
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision != null)

@@ -20,7 +20,10 @@ public class Gameplay : MonoBehaviour
     public bool IsInitialized => _initialized && _isStarted;
 
     public Timer LevelTimer;
-    private float _timeDuration = 60f;
+    /// <summary>
+    /// Level timer duration
+    /// </summary>
+    private float _timeDuration = 30f;
 
     public void Run()
     {
@@ -70,6 +73,7 @@ public class Gameplay : MonoBehaviour
         }
     }
 
+
     private void HandleLevelTimerFinished()
     {
         _dropZoneController = GetComponentInChildren<DropZoneController>();
@@ -77,6 +81,8 @@ public class Gameplay : MonoBehaviour
             Debug.Log($"Time out! Your Score is [{_dropZoneController.Count}]");
         if (LevelTimer != null)
             LevelTimer.Stop();
+
+
     }
 
     //Listener OnPlayerStatsChanged
@@ -98,8 +104,6 @@ public class Gameplay : MonoBehaviour
             Debug.Log($"{this}: failed in intialization!");
     }
 
-
-
     private void ChangeDefaultPlayerSpeed(float newSpeed)
     {
         GameManager gm = _gameManager;
@@ -116,10 +120,12 @@ public class Gameplay : MonoBehaviour
     private void AddListeners()
     {
         GameManager gm = _gameManager;
-        if (gm != null)
-            gm.EventBus.PlayerStatsChanged.AddListener(OnPlayerStatsChanged);
+
+        gm?.EventBus.PlayerStatsChanged.AddListener(OnPlayerStatsChanged);
+        gm?.EventBus.GameCountScore.AddListener(OnGetScore);
         LevelTimer.OnTimerComplete += HandleLevelTimerFinished;
         _haveListeners = true;
+
     }
 
     private void RemoveListeners()
@@ -150,6 +156,11 @@ public class Gameplay : MonoBehaviour
         }
     }
 
+    private void OnGetScore(ulong score)
+    {
+        score = _dropZoneController.Count;
+        _gameManager?.EventBus?.TriggerGameCountScore(score);
+    }
 
 
 
