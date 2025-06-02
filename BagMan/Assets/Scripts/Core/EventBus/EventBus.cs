@@ -46,7 +46,9 @@ public class EventBus
     public void TriggerPlayerCountUpdateUI(float count) => PlayerCountUpdateUI.Invoke(count);
     public void TriggerTemperatureChangedUI() => TemperatureChangedUI.Invoke();
 
+    //Cart on spawnzone - trigger timer
     public void TriggerStartTask() => StartTask.Invoke();
+
     //System Game events
     public void TriggerExitGame() => GameExit.Invoke();
     public void TriggerPauseGame() => GamePause.Invoke();

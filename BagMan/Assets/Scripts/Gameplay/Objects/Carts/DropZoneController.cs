@@ -53,12 +53,12 @@ public class DropZoneController : MonoBehaviour
 
     public void AddListeners()
     {
-        _gm?.EventBus?.StartTask.AddListener(ShowMessage);
+        _gm?.EventBus?.StartTask.AddListener(OnCartCountedInScore);
     }
 
     public void RemoveListeners()
     {
-        _gm?.EventBus?.StartTask.RemoveListener(ShowMessage);
+        _gm?.EventBus?.StartTask.RemoveListener(OnCartCountedInScore);
     }
 
     private void TryTeleportCart(Collider2D collision)
@@ -89,7 +89,7 @@ public class DropZoneController : MonoBehaviour
         }
     }
 
-    void ShowMessage()
+    void OnCartCountedInScore()
     {
         //Debug.Log("Timer Triggered by cart");
         StartCoroutine(WaitParametersAndTriggerTimer());
@@ -113,17 +113,17 @@ public class DropZoneController : MonoBehaviour
     IEnumerator CheckResponse()
     {
         //  waiting
-        _gm.EventBus.TimerReceived.AddListener(isEventReceived);
+        _gm.EventBus.TimerReceived.AddListener(OnTimerResponseReceived);
         float start = Time.time;
         while (Time.time - start < 5f)
         {
             _gm.EventBus?.TriggerTimer(_gm.GamePlay?.LevelTimer);
             yield return new WaitForSeconds(0.1f);
         }
-        _gm.EventBus.TimerReceived.RemoveListener(isEventReceived);
+        _gm.EventBus.TimerReceived.RemoveListener(OnTimerResponseReceived);
     }
 
-    void isEventReceived()
+    void OnTimerResponseReceived()
     {
         if (_response != null)
         {

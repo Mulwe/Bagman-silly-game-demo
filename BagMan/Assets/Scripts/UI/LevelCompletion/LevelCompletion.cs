@@ -1,5 +1,3 @@
-using System.Linq;
-
 public class LevelCompletion
 {
     private readonly EventBus _eventBus;
@@ -8,7 +6,7 @@ public class LevelCompletion
 
     public ulong Score => _score;
 
-    int[] t = new[] { 1, 2, 3, 4, 5, 6, 7 };
+    // int[] t = new[] { 1, 2, 3, 4, 5, 6, 7 };
 
 
 
@@ -19,7 +17,7 @@ public class LevelCompletion
             _eventBus = gm.EventBus;
             AddListeners();
         }
-        t.Contains(0);
+
 
         //show score
         //send trigger to finish to close or move next level

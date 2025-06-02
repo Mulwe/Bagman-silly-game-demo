@@ -45,7 +45,7 @@ public class UITimer : MonoBehaviour
         _eventBus.Timer.AddListener(ShowTimerUI);
     }
 
-    // Cобытие ответ, если класс инициализирован отправить ответ и работа с классом дальше
+    //Cобытие ответ, если класс инициализирован отправить ответ и работа с классом дальше
     private void ShowTimerUI(Timer t)
     {
         if (t != null)

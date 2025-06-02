@@ -20,6 +20,7 @@ public class Gameplay : MonoBehaviour
     public bool IsInitialized => _initialized && _isStarted;
 
     public Timer LevelTimer;
+
     /// <summary>
     /// Level timer duration
     /// </summary>
@@ -52,14 +53,21 @@ public class Gameplay : MonoBehaviour
     {
         if (_isStarted && _initialized && _gameManager != null)
         {
-            StartCoroutine(DelayTimer(LevelTimer, 3));
-
+            // StartCoroutine(DelayTimer(LevelTimer, 3));
+            _gameManager.EventBus.Timer.AddListener(OnFirstPlayerScored);
+            StartCoroutine(WaitPlayersInteractions(LevelTimer, 10f));
         }
     }
-    IEnumerator DelayTimer(Timer timer, float seconds)
+
+    IEnumerator WaitPlayersInteractions(Timer timer, float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        timer.Start();
+        if (!timer.IsRunning)
+        {
+            //show tip
+            _gameManager.EventBus.Timer.RemoveListener(OnFirstPlayerScored);
+            timer.Start();
+        }
     }
 
     public void OnPlayerStatsChanged()
@@ -81,8 +89,6 @@ public class Gameplay : MonoBehaviour
             Debug.Log($"Time out! Your Score is [{_dropZoneController.Count}]");
         if (LevelTimer != null)
             LevelTimer.Stop();
-
-
     }
 
     //Listener OnPlayerStatsChanged
@@ -93,6 +99,7 @@ public class Gameplay : MonoBehaviour
         {
             gm.Init();
             ChangeDefaultPlayerSpeed(_playerSpeed);
+
             LevelTimer = new Timer(_timeDuration);
 
             AddListeners();
@@ -120,12 +127,11 @@ public class Gameplay : MonoBehaviour
     private void AddListeners()
     {
         GameManager gm = _gameManager;
-
         gm?.EventBus.PlayerStatsChanged.AddListener(OnPlayerStatsChanged);
         gm?.EventBus.GameCountScore.AddListener(OnGetScore);
+
         LevelTimer.OnTimerComplete += HandleLevelTimerFinished;
         _haveListeners = true;
-
     }
 
     private void RemoveListeners()
@@ -158,10 +164,21 @@ public class Gameplay : MonoBehaviour
 
     private void OnGetScore(ulong score)
     {
+        //update score
         score = _dropZoneController.Count;
         _gameManager?.EventBus?.TriggerGameCountScore(score);
     }
 
+    private void OnFirstPlayerScored(Timer timer)
+    {
+        if (LevelTimer != null && !LevelTimer.IsRunning)
+        {
+            _gameManager.EventBus.Timer.RemoveListener(OnFirstPlayerScored);
+            LevelTimer.Start();
+            _gameManager?.EventBus?.TriggerTimer(LevelTimer);
+            Debug.Log("Timer trigered by cart");
+        }
+    }
 
 
 }
