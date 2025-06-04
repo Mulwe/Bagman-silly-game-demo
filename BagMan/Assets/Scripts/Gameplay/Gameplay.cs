@@ -53,21 +53,27 @@ public class Gameplay : MonoBehaviour
     {
         if (_isStarted && _initialized && _gameManager != null)
         {
-            // StartCoroutine(DelayTimer(LevelTimer, 3));
             _gameManager.EventBus.Timer.AddListener(OnFirstPlayerScored);
+
             StartCoroutine(WaitPlayersInteractions(LevelTimer, 10f));
         }
     }
 
     IEnumerator WaitPlayersInteractions(Timer timer, float seconds)
     {
+        //show tips for player. if no interactions start the timer
+        //Trigger text ""
         yield return new WaitForSeconds(seconds);
-        if (!timer.IsRunning)
+
+        if (timer != null && !timer.IsRunning)
         {
-            //show tip
+            //show tip — encourage player to action
             _gameManager.EventBus.Timer.RemoveListener(OnFirstPlayerScored);
+            _gameManager.EventBus.TriggerTimerUI(timer);
             timer.Start();
         }
+        else
+            Debug.Log("Timer is still running");
     }
 
     public void OnPlayerStatsChanged()
@@ -154,13 +160,21 @@ public class Gameplay : MonoBehaviour
             _spawner = transform.gameObject.GetComponent<SpawnedObjects>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (LevelTimer != null && LevelTimer.GetRemainingTime() > 0)
         {
             LevelTimer.Update();
         }
     }
+
+
+    private void Update()
+    {
+
+    }
+
+
 
     private void OnGetScore(ulong score)
     {

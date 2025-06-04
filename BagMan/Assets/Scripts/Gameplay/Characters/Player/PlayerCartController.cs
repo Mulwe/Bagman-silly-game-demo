@@ -9,23 +9,29 @@ public class PlayerCartController : MonoBehaviour
     [Header("Cart Control")]
     public KeyCode detachAllKey = KeyCode.R;
 
+    [Header("Cart Settings")]
     [SerializeField] private int _limitAttachedCarts = 4;
     private int _attachedCarts = 0;
     public int AttachedCarts => _attachedCarts;
-    bool _isLogging = false;
 
 
-    private Animator _animator;
+    [SerializeField, Range(0.1f, 5f)] private float _radius = 1.5f;
+    private bool _interactActive;
+    private CircleCollider2D _interactArea;
+    private FloatingTip _tip;
+    private bool _isLogging;
 
-    void Start()
+    private void Start()
     {
         // Create attachment point if not set
         _attachedCarts = 0;
         InitializeAttachPoint();
-        _animator = GetComponent<Animator>();
+        InitPopUpCollider();
+        _tip = GetComponentInChildren<FloatingTip>();
+        _isLogging = false;
     }
 
-    void Update()
+    private void Update()
     {
         // Detach all carts when pressing the detach key
         if (hasCartAttached && Input.GetKeyDown(detachAllKey))
@@ -34,24 +40,50 @@ public class PlayerCartController : MonoBehaviour
         }
     }
 
-    private void Log(string message)
-    {
-        if (_isLogging)
-            Debug.Log(message);
-    }
-
     private void OnEnable()
     {
         ImprovedCartAttachment.OnCartAttached += HandleCartAttached;
         ImprovedCartAttachment.OnCartDetached += HandleCartDetached;
 
     }
+
     private void OnDisable()
     {
         ImprovedCartAttachment.OnCartAttached -= HandleCartAttached;
         ImprovedCartAttachment.OnCartDetached -= HandleCartDetached;
+
     }
 
+    public void HandleShowPickUpTip()
+    {
+        if (_tip != null)
+        {
+            _tip.HandleShowRequest();
+        }
+    }
+
+    public void HandleHidePickUpTip()
+    {
+        if (_tip != null)
+        {
+            _tip.HandleShowRequest();
+        }
+    }
+
+
+    private void InitPopUpCollider()
+    {
+        if (_interactArea == null)
+        {
+            _interactArea = transform.gameObject.AddComponent<CircleCollider2D>();
+            if (_interactArea != null)
+            {
+                _interactArea.isTrigger = true;//отключает физику
+                _interactArea.radius = _radius;
+                _interactArea.enabled = true;
+            }
+        }
+    }
 
     public bool ReachedLimit()
     {
@@ -63,23 +95,26 @@ public class PlayerCartController : MonoBehaviour
         return false;
     }
 
+    private void Log(string message)
+    {
+        if (_isLogging)
+            Debug.Log(message);
+    }
+
     private void HandleCartDetached()
     {
         if (_attachedCarts < 0)
             _attachedCarts = 0;
         else
             _attachedCarts--;
-
     }
 
     private void HandleCartAttached()
     {
-
         if (_attachedCarts > _limitAttachedCarts)
             _attachedCarts = _limitAttachedCarts;
         else
             _attachedCarts++;
-        //Debug.Log($"Player have [{_attachedCarts}] attached carts");
     }
 
     void InitializeAttachPoint()
@@ -105,7 +140,6 @@ public class PlayerCartController : MonoBehaviour
         }
     }
 
-
     void DetachAllCarts()
     {
         Collider2D[] cartColliders = Physics2D.OverlapCircleAll(attachPoint.position, 0.5f);
@@ -114,7 +148,6 @@ public class PlayerCartController : MonoBehaviour
             ImprovedCartAttachment cart = cartCollider.GetComponent<ImprovedCartAttachment>();
             if (cart != null && cart.enabled)
             {
-
                 cart.DetachChain();
                 _attachedCarts = 0;
                 break;
@@ -126,14 +159,13 @@ public class PlayerCartController : MonoBehaviour
     }
 
 
+
     void OnDrawGizmosSelected()
     {
         if (attachPoint != null)
         {
-
             Gizmos.color = Color.yellow;
             Gizmos.DrawSphere(attachPoint.position, 0.09f);
-
 
             Gizmos.color = new Color(0, 0, 1, 0.3f);
             Gizmos.DrawSphere(attachPoint.position, 0.5f);

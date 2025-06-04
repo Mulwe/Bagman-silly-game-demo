@@ -6,12 +6,19 @@ public class ImprovedCartAttachment : MonoBehaviour
 {
     [Header("Debug: ")]
     [SerializeField] private GameObject _playerObject;
-    public PlayerCartController _playerCartController;
+    [SerializeField] private PlayerCartController _playerCartController;
 
     [Header("Attachment Settings")]
     public float attachDistance = 1.5f;
     public LayerMask playerLayer;
     public LayerMask cartLayer;
+
+    [Header("Interaction buttons:")]
+    public KeyCode AttachButton = KeyCode.E;
+    public KeyCode DetachButton = KeyCode.Q;
+
+    //Tip collider 
+    CircleCollider2D interactionArea;
 
     [Header("Connection Points")]
     public Transform frontPoint;
@@ -26,6 +33,8 @@ public class ImprovedCartAttachment : MonoBehaviour
     [SerializeField] private bool isAttachedToPlayer = false;
     [SerializeField] private bool hasSomethingBehind = false;
 
+    public bool Linked => isAttached || isAttachedToPlayer || hasSomethingBehind;
+
     // References
     private HingeJoint2D joint;
     private Rigidbody2D rb;
@@ -35,9 +44,9 @@ public class ImprovedCartAttachment : MonoBehaviour
     public static event Action OnCartAttached;
     public static event Action OnCartDetached;
 
+
     Vector3 DebugPosition;
 
-    //can't use validate because of prefab
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -52,6 +61,7 @@ public class ImprovedCartAttachment : MonoBehaviour
         else
             Debug.LogError("Player Cart Controller not found!");
 
+        AddInteractionCollider(attachDistance);
     }
 
     private void Update()
@@ -62,12 +72,60 @@ public class ImprovedCartAttachment : MonoBehaviour
             Detach();
             return;
         }
-
         if (!isAttached && Input.GetKeyDown(KeyCode.E))
         {
             TryAttach();
         }
+        if (Linked && interactionArea != null)
+            interactionArea.enabled = false;
+        else
+            interactionArea.enabled = true;
     }
+
+    //for tips
+    private void AddInteractionCollider(float radius)
+    {
+        if (gameObject != null && gameObject.GetComponent<CircleCollider2D>() == null)
+        {
+            interactionArea = gameObject.AddComponent<CircleCollider2D>();
+            if (interactionArea != null)
+            {
+                interactionArea.isTrigger = true;
+                interactionArea.radius = radius;
+                interactionArea.enabled = true;
+                //подписка на игрока
+            }
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            if (collision is CircleCollider2D)
+            {
+                if (!this.Linked && _playerCartController != null)
+                {
+                    _playerCartController.HandleShowPickUpTip();
+                }
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            if (collision is CircleCollider2D)
+            {
+                if (this.Linked && _playerCartController != null)
+                {
+                    _playerCartController.HandleShowPickUpTip();
+                }
+            }
+        }
+    }
+
 
     private void InitializeAttachmentPoints()
     {
@@ -147,7 +205,6 @@ public class ImprovedCartAttachment : MonoBehaviour
                 if (AttachToCart(cartCollider.gameObject)) { }
                 return;
             }
-
         }
     }
 
@@ -304,18 +361,14 @@ public class ImprovedCartAttachment : MonoBehaviour
             {
                 // Update player's attached status
                 if (playerController != null)
-                {
                     playerController.hasCartAttached = false;
-                }
             }
             else
             {
                 // Update other cart's status
                 ImprovedCartAttachment connectedCart = connectedObject.GetComponent<ImprovedCartAttachment>();
                 if (connectedCart != null)
-                {
                     connectedCart.hasSomethingBehind = false;
-                }
             }
             Destroy(joint);
             joint = null;
@@ -325,7 +378,6 @@ public class ImprovedCartAttachment : MonoBehaviour
         isAttachedToPlayer = false;
         connectedObject = null;
         OnCartDetached?.Invoke();
-        //Debug.Log(gameObject.name + " detached");
     }
 
     public GameObject IsAttached()
@@ -334,7 +386,6 @@ public class ImprovedCartAttachment : MonoBehaviour
             return connectedObject;
         return null;
     }
-
 
     // Recursively detach the chain
     public void DetachChain()
@@ -355,12 +406,6 @@ public class ImprovedCartAttachment : MonoBehaviour
     }
 
 
-
-
-
-
-
-    // Visualization in editor
     void OnDrawGizmosSelected()
     {
         // Draw detection radius
@@ -393,7 +438,6 @@ public class ImprovedCartAttachment : MonoBehaviour
                 Gizmos.color += Color.green;
             swap = !swap;
             Gizmos.DrawSphere(DebugPosition, 0.05f);
-            // Gizmos.DrawWireSphere(DebugPosition, attachDistance);
         }
     }
 }

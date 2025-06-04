@@ -41,6 +41,7 @@ public class EventBus
 
     public void TriggerPlayerStatsChanged() => PlayerStatsChanged.Invoke();
     //UI Updates
+    public void TriggerTimerUI(Timer timer) => Timer.Invoke(timer);
     public void TriggerPlayerStaminaUpdateUI() => PlayerStaminaUpdateUI.Invoke();
     public void TriggerPlayerSpeedUpdateUI() => PlayerSpeedUpdateUI.Invoke();
     public void TriggerPlayerCountUpdateUI(float count) => PlayerCountUpdateUI.Invoke(count);

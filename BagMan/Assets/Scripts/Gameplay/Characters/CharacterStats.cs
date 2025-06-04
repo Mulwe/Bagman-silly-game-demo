@@ -5,7 +5,7 @@ public class CharacterStats : ICharacterStats
     [SerializeField, Range(0, 100)] private int _maxHealth = 100;
     [SerializeField, Range(0, 100)] private int _maxStamina = 100;
     [SerializeField, Range(0, 100)] private float _staminaRate = 1;
-    [SerializeField] private float staminaDrain = 10;
+    //[SerializeField] private float staminaDrain = 10;
 
     public bool isLogging = false;
     private int _health;

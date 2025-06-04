@@ -85,13 +85,12 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
             Debug.Log("Spawned 0 objects. Reference do not exists");
             return (objs);
         }
-
     }
 
     private GameObject SpawnCart(GameObject objRef, Vector2 spawnPoint)
     {
         Vector3 point = new Vector3(spawnPoint.x, spawnPoint.y, 0f);
-        GameObject newObj = Instantiate(objRef, point, Quaternion.identity);
+        GameObject newObj = Instantiate(objRef, point, Quaternion.identity, transform);
         newObj.SetActive(true);
         return newObj;
     }
@@ -104,6 +103,7 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
         int maxAttemps = 50;
 
         Vector2 spot = Vector2.zero;
+        _spawnZone.SpawnColliderIsActive(false);
         for (int i = 0; i < maxAttemps; i++)
         {
             spot.x = Random.Range(s.GetX(spawnArea).minX, s.GetX(spawnArea).maxX);
@@ -113,30 +113,49 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
                 if (IsObstacleFree(prefab, spot))
                 {
                     obj = SpawnCart(prefab, spot);
+                    _spawnZone.SpawnColliderIsActive(true);
                     return obj;
                 }
             }
         }
+        _spawnZone.SpawnColliderIsActive(true);
         return null;
     }
 
     bool IsObstacleFree(GameObject obj, Vector2 targetPosition)
     {
-        Collider2D collider = obj.GetComponent<Collider2D>();
-        if (collider == null) return false;
+        if (obj == null) return false;
 
-        Vector2 size = collider.bounds.size;
+        Collider2D prefabCollider = obj.GetComponent<Collider2D>();
+        if (prefabCollider == null) return false;
+
+        Vector2 size = GetColliderSize(prefabCollider);
         //тригирит на любые коллайдеры, даже отключенные.нужно отключать колайдеры перед проверкой
-        Collider2D hit = Physics2D.OverlapBox(targetPosition, size, 0f);
-
-        var sr = obj.GetComponent<SpriteRenderer>();
-        if (sr != null)
+        Collider2D[] hits = Physics2D.OverlapBoxAll(targetPosition, size, 0f);
+        foreach (Collider2D hit in hits)
         {
-            Vector2 spriteSize = sr.size;
-            Collider2D spriteHit = Physics2D.OverlapBox(targetPosition, size, 0f);
-            return (hit == null && spriteHit == null);
+            if (hit == null) continue;
+            if (!hit.enabled || !hit.gameObject.activeInHierarchy) continue;
+            if (hit.isTrigger) return false;
+            if (hit.CompareTag("Player")) return false;
         }
-        return hit == null;
+        return true;
+    }
+
+    Vector2 GetColliderSize(Collider2D collider)
+    {
+        switch (collider)
+        {
+            case BoxCollider2D box:
+                return box.size;
+            case CircleCollider2D circle:
+                float diameter = circle.radius * 2f;
+                return new Vector2(diameter, diameter);
+            case CapsuleCollider2D capsule:
+                return capsule.size;
+            default:
+                return collider.bounds.size;
+        }
     }
 
     // respawn or destroy object
@@ -158,8 +177,10 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     private bool SpawnObjectsOnScene(GameObject obj)
     {
         List<Vector2> spawnArea = _spawnZone.GetSpawnZone();
-        List<Vector2> bannedArea = _spawnZone.GetDropZone();
+        List<Vector2> bannedArea = new(_spawnZone.GetSpawnZone());
 
+        foreach (var point in bannedArea)
+            point.Scale();
         int maxAttemps = 100;
 
         _spawnZone.SpawnColliderIsActive(false);
@@ -186,7 +207,6 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     private IEnumerator DeleteCollectedObject(GameObject obj)
     {
         yield return HideAndMove(obj, new Vector3(-99, -99, -99));
-        DestroyObject(obj);
         yield return null;
     }
 
@@ -204,13 +224,13 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     //пр€чу объект от игрока пока не отвернетс€
     private IEnumerator HideAndMove(GameObject obj, Vector3 spot)
     {
-        SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
-        if (spriteRenderer == null) yield break;
 
+        SpriteRenderer spriteRenderer = obj?.GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null) yield break;
         spriteRenderer.enabled = false;
         yield return null;  //дл€ обновлени€ bounds
 
-        Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
+        Rigidbody2D rb = obj?.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
             rb.position = spot;
@@ -224,7 +244,10 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
         {
             yield return new WaitForSeconds(0.1f);
         }
-        spriteRenderer.enabled = true;
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = true;
+        if (obj != null)
+            DestroyObject(obj);
 
     }
 
@@ -232,23 +255,17 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     bool IsVisibleToCamera2D(GameObject obj)
     {
         Camera camera = Camera.main;
-        if (camera == null) return false;
+        if (camera == null || obj == null) return false;
 
         Bounds bounds;
 
-        SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null && spriteRenderer.enabled)
-            bounds = spriteRenderer.bounds;
+        Collider2D collider = obj.GetComponent<Collider2D>();
+        if (collider != null)
+            bounds = collider.bounds;
         else
         {
-            Collider2D collider = obj.GetComponent<Collider2D>();
-            if (collider != null)
-                bounds = collider.bounds;
-            else
-            {
-                Vector3 position = obj.transform.position;
-                bounds = new Bounds(position, Vector3.one);
-            }
+            Vector3 position = obj.transform.position;
+            bounds = new Bounds(position, Vector3.one);
         }
 
         Vector3 min = camera.WorldToViewportPoint(bounds.min);
@@ -264,11 +281,13 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     // при манипул€ции со списокм нельз€ исользовать foreach
     private void DestroyObject(GameObject obj)
     {
+        Debug.Log($"{obj.name} Was destroyed");
         if (_listObjects == null || obj == null || _listObjects.Count == 0)
             return;
         _listObjects.RemoveAll(item => item == obj);
 
         UnityEngine.Object.Destroy(obj);
+        obj = null;
         //Debug.Log("Obj deleted");
     }
 

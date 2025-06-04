@@ -20,7 +20,6 @@ public class PlayerEventHandler : MonoBehaviour
 
     private bool _isInit = false;
 
-
     public void Initialize(GameManager gm)
     {
         _gameplay ??= gm.GamePlay;
@@ -33,6 +32,7 @@ public class PlayerEventHandler : MonoBehaviour
             _control.UpdatePlayerSpeed(_playerStats.GetCharacterSpeed());
             _playerCartData = transform.GetComponent<PlayerCartController>();
             _defaultSpeed = _playerStats.GetCharacterSpeed();
+
             _isInit = true;
             _canRepeat = true;
         }
@@ -42,7 +42,6 @@ public class PlayerEventHandler : MonoBehaviour
         }
     }
 
-
     public void Run()
     {
         // RefreshUI на всякий случай
@@ -50,13 +49,13 @@ public class PlayerEventHandler : MonoBehaviour
         //запуск условий
     }
 
+
     private void UpdatePlayerSpeed(float newSpeed)
     {
-        if (_playerStats != null && _control)
-        {
-            _playerStats.SetCharacterSpeed(newSpeed);
-            _control.UpdatePlayerSpeed(newSpeed);
-        }
+        if (_playerStats == null && _control == null) return;
+
+        _playerStats.SetCharacterSpeed(newSpeed);
+        _control.UpdatePlayerSpeed(newSpeed);
     }
 
     private void SpeedChangeCondition()
@@ -78,13 +77,12 @@ public class PlayerEventHandler : MonoBehaviour
     {
         float delay = 1.0f;
 
-        if (!_canRepeat || _playerCartData == null)
-            return;
+        if (!_canRepeat || _playerCartData == null) return;
         if (_canRepeat)
             StartCoroutine(WaitUntilRepeat(delay));
+
         Rigidbody2D rb = _control.GetComponent<Rigidbody2D>();
-        if (rb == null || rb?.linearVelocity.SqrMagnitude() <= 0.01f)
-            return;
+        if (rb == null || rb?.linearVelocity.SqrMagnitude() <= 0.01f) return;
 
         PlayerIsMovingWithCarts();
     }
@@ -121,6 +119,7 @@ public class PlayerEventHandler : MonoBehaviour
         if (_isInit)
         {
             //отписка
+            StopAllCoroutines();
             _isInit = false;
         }
     }
@@ -157,5 +156,11 @@ public class PlayerEventHandler : MonoBehaviour
         _eventBus.TriggerTemperatureChangedUI();
         _eventBus.TriggerPlayerStaminaUpdateUI();
         _eventBus.TriggerPlayerSpeedUpdateUI();
+    }
+
+    private void OnDestroy()
+    {
+
+        //remove listeners
     }
 }
