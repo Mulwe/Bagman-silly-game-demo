@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class SpawnedObjects : MonoBehaviour, IInitializable
+public class SpawnedObjects : MonoBehaviour
 {
     [Header("Prefab to spawn:")]
     [SerializeField] private GameObject _objPrefab;
     [SerializeField] private int _amount = 5;
+
     [Header("The zone of spawn:")]
     [SerializeField] private Zone _spawnZone;
     public List<GameObject> _listObjects;
@@ -15,10 +16,16 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     private bool _isSpawned = false;
     public bool IsInit => _isSpawned;
 
+    private PoolManager _poolManager;
+    private Coroutine _coroutine;
+    public PoolManager PoolManager => _poolManager;
+
+
     public List<GameObject> GetList()
     {
         return this._listObjects;
     }
+
     public void ChangeAmount(int newAmount)
     {
         this._amount = newAmount;
@@ -27,67 +34,76 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     public void Run()
     {
         if (_isSpawned)
-        {
             Debug.Log("Objects are spawned");
-        }
     }
 
     public void Initialize()
     {
-        if (_listObjects == null)
-            _listObjects = new List<GameObject>();
         if (_spawnZone != null)
         {
             _spawnZone.Initialize();
-
-            _listObjects = SpawnInZone(_spawnZone);
-
+            _poolManager = new PoolManager(_listObjects);
+            if (_coroutine != null)
+            {
+                StopCoroutine(_coroutine);
+                _coroutine = null;
+            }
+            _coroutine = StartCoroutine(PoolCleanupCoroutine(_poolManager));
+            SpawnInZone(_spawnZone);
             _isSpawned = _listObjects != null;
         }
     }
 
-    public List<GameObject> SpawnInZone(Zone s)
+    public void SpawnInZone(Zone s)
     {
-        List<GameObject> list;
         //выключу колайдер пр€мо перед проверкой.  
         //»зза функции Physics2D.OverlapBox тригиритс€ на любые колайдеры - видимые и невидимые. 
         if (_objPrefab != null)
         {
-            s.SpawnColliderIsActive(false);
-            list = Spawner(_objPrefab, s, _amount);
-            s.SpawnColliderIsActive(true);
-            return list;
+            _listObjects = Spawner(_objPrefab, s, _amount);
         }
         else
-        {
             Debug.Log("Prefab not found");
-            return _listObjects;
+    }
+
+    private IEnumerator PoolCleanupCoroutine(PoolManager p)
+    {
+        //Debug.Log("Pool is working");
+        if (p == null) yield break;
+
+        while (p != null)
+        {
+            p.ClearPool();
+            yield return new WaitForSeconds(5f);
         }
     }
 
-
     List<GameObject> Spawner(GameObject prefab, Zone s, int count)
     {
-        List<GameObject> objs = new List<GameObject>();
+        List<GameObject> objsList = null;
         if (prefab && count > 0)
         {
+            objsList = new List<GameObject>();
+            s.SpawnColliderIsActive(false);
             for (int i = 0; i < count; i++)
             {
-                //check spot and spawn
                 GameObject result = CheckAndSpawn(prefab, s);
                 if (result)
-                    objs.Add(result);
+                {
+                    objsList.Add(result);
+                }
             }
-            return objs;
+            s.SpawnColliderIsActive(true);
+            return objsList;
         }
         else
         {
             Debug.Log("Spawned 0 objects. Reference do not exists");
-            return (objs);
+            return (objsList);
         }
     }
 
-    private GameObject SpawnCart(GameObject objRef, Vector2 spawnPoint)
+    private GameObject SpawnCart(GameObject objRef, Vector3 spawnPoint)
     {
         Vector3 point = new Vector3(spawnPoint.x, spawnPoint.y, 0f);
         GameObject newObj = Instantiate(objRef, point, Quaternion.identity, transform);
@@ -98,27 +114,30 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     GameObject CheckAndSpawn(GameObject prefab, Zone s)
     {
         List<Vector2> spawnArea = s.GetSpawnZone();
-        List<Vector2> bannedArea = s.GetDropZone();
-        GameObject obj;
-        int maxAttemps = 50;
+        List<Vector2> bannedArea = new(_spawnZone.GetSpawnZone());
+
+        ShiftBannedZone(bannedArea);
+
+
+        int maxAttemps = 100;
 
         Vector2 spot = Vector2.zero;
-        _spawnZone.SpawnColliderIsActive(false);
+        GameObject obj = SpawnCart(prefab, new Vector3(0, 0, -100));
         for (int i = 0; i < maxAttemps; i++)
         {
             spot.x = Random.Range(s.GetX(spawnArea).minX, s.GetX(spawnArea).maxX);
             spot.y = Random.Range(s.GetY(spawnArea).minY, s.GetY(spawnArea).maxY);
             if (!s.IsPointInRectangle(bannedArea, spot))
             {
-                if (IsObstacleFree(prefab, spot))
+                if (IsObstacleFree(obj, spot))
                 {
-                    obj = SpawnCart(prefab, spot);
-                    _spawnZone.SpawnColliderIsActive(true);
+                    obj.transform.position = spot;
                     return obj;
                 }
             }
         }
-        _spawnZone.SpawnColliderIsActive(true);
+        if (obj != null)
+            UnityEngine.Object.Destroy(obj);
         return null;
     }
 
@@ -126,20 +145,18 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     {
         if (obj == null) return false;
 
-        Collider2D prefabCollider = obj.GetComponent<Collider2D>();
-        if (prefabCollider == null) return false;
-
-        Vector2 size = GetColliderSize(prefabCollider);
-        //тригирит на любые коллайдеры, даже отключенные.нужно отключать колайдеры перед проверкой
-        Collider2D[] hits = Physics2D.OverlapBoxAll(targetPosition, size, 0f);
-        foreach (Collider2D hit in hits)
+        if (obj.TryGetComponent<Collider2D>(out var prefabCollider))
         {
-            if (hit == null) continue;
-            if (!hit.enabled || !hit.gameObject.activeInHierarchy) continue;
-            if (hit.isTrigger) return false;
-            if (hit.CompareTag("Player")) return false;
+            Vector2 size = GetColliderSize(prefabCollider);
+            Collider2D[] hits = Physics2D.OverlapBoxAll(targetPosition, size, 0f);
+            foreach (Collider2D hit in hits)
+            {
+                if (hit == null || !hit.enabled || !hit.gameObject.activeInHierarchy) continue;
+                if (hit.isTrigger || hit.CompareTag("Player")) return false;
+            }
+            return true;
         }
-        return true;
+        else return false;
     }
 
     Vector2 GetColliderSize(Collider2D collider)
@@ -173,14 +190,26 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
         }
     }
 
+    private void ShiftBannedZone(List<Vector2> bannedArea)
+    {
+        float offset = 0.5f;
+        Vector2 center = Vector2.zero;
+        foreach (var v in bannedArea)
+            center += v;
+        center /= bannedArea.Count;
+        for (int i = 0; i < bannedArea.Count; i++)
+        {
+            Vector2 direction = (bannedArea[i] - center).normalized;
+            bannedArea[i] += direction * offset;
+        }
+    }
 
     private bool SpawnObjectsOnScene(GameObject obj)
     {
         List<Vector2> spawnArea = _spawnZone.GetSpawnZone();
         List<Vector2> bannedArea = new(_spawnZone.GetSpawnZone());
 
-        foreach (var point in bannedArea)
-            point.Scale();
+        ShiftBannedZone(bannedArea);
         int maxAttemps = 100;
 
         _spawnZone.SpawnColliderIsActive(false);
@@ -194,7 +223,8 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
             {
                 if (IsObstacleFree(obj, spot))
                 {
-                    StartCoroutine(HideAndMove(obj, spot));
+                    //AddedToPool
+                    StartCoroutine(HideAndMove(obj, spot, true));
                     _spawnZone.SpawnColliderIsActive(true);
                     return true;
                 }
@@ -206,7 +236,7 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
 
     private IEnumerator DeleteCollectedObject(GameObject obj)
     {
-        yield return HideAndMove(obj, new Vector3(-99, -99, -99));
+        yield return StartCoroutine(HideAndMove(obj, new Vector3(-99, -99, -99), false));
         yield return null;
     }
 
@@ -221,16 +251,18 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     }
 
 
-    //пр€чу объект от игрока пока не отвернетс€
-    private IEnumerator HideAndMove(GameObject obj, Vector3 spot)
+    private IEnumerator HideAndMove(GameObject obj, Vector3 spot, bool isRespawn)
     {
-
-        SpriteRenderer spriteRenderer = obj?.GetComponent<SpriteRenderer>();
+        SpriteRenderer spriteRenderer = null;
+        Rigidbody2D rb = null;
+        if (obj != null)
+            spriteRenderer = obj.GetComponent<SpriteRenderer>();
         if (spriteRenderer == null) yield break;
         spriteRenderer.enabled = false;
         yield return null;  //дл€ обновлени€ bounds
 
-        Rigidbody2D rb = obj?.GetComponent<Rigidbody2D>();
+        if (obj != null)
+            rb = obj.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
             rb.position = spot;
@@ -239,17 +271,18 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
         }
         else
             obj.transform.position = spot;
-
-        while (IsVisibleToCamera2D(obj))
+        while (isRespawn && IsVisibleToCamera2D(obj))
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(1.0f);
         }
-        if (spriteRenderer != null)
-            spriteRenderer.enabled = true;
-        if (obj != null)
-            DestroyObject(obj);
 
+        if (!isRespawn && _poolManager != null)
+        {
+            //Debug.Log("ѕомечен дл€ удалени€");
+            _poolManager.AddToDelete(obj);
+        }
     }
+
 
     //учитывает только размер спрайта и или колайдера
     bool IsVisibleToCamera2D(GameObject obj)
@@ -259,7 +292,10 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
 
         Bounds bounds;
 
-        Collider2D collider = obj.GetComponent<Collider2D>();
+        Collider2D collider = null;
+        if (obj != null && obj.TryGetComponent<Collider2D>(out var result))
+            collider = result;
+
         if (collider != null)
             bounds = collider.bounds;
         else
@@ -277,35 +313,8 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
     }
 
 
-    //удаление объекта со сцены и списка
-    // при манипул€ции со списокм нельз€ исользовать foreach
-    private void DestroyObject(GameObject obj)
-    {
-        Debug.Log($"{obj.name} Was destroyed");
-        if (_listObjects == null || obj == null || _listObjects.Count == 0)
-            return;
-        _listObjects.RemoveAll(item => item == obj);
-
-        UnityEngine.Object.Destroy(obj);
-        obj = null;
-        //Debug.Log("Obj deleted");
-    }
-
-
-    private void DestroyAllObjects()
-    {
-        if (_listObjects == null || _listObjects.Count == 0) return;
-        for (int i = 0; i < _listObjects.Count - 1; i++)
-        {
-            if (_listObjects[i] != null)
-                Destroy(_listObjects[i]);
-        }
-        _listObjects.Clear();
-    }
-
     private void Start()
     {
-        _listObjects = new List<GameObject>();
         if (_spawnZone == null)
         {
             Debug.Log("SpawnObject: Spawnzone reference is null.");
@@ -313,9 +322,13 @@ public class SpawnedObjects : MonoBehaviour, IInitializable
         }
     }
 
+
     private void OnDestroy()
     {
         // Debug.LogWarning($"{name} был уничтожен. Stack trace:\n{System.Environment.StackTrace}");
-        DestroyAllObjects();
+        if (_coroutine != null)
+            StopCoroutine(_coroutine);
+        _poolManager?.DeleteMainQueueAfterDespose(true);
+        _poolManager?.Dispose();
     }
 }

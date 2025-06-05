@@ -33,10 +33,12 @@ public class DropZoneController : MonoBehaviour
         _gameplay = transform.parent.parent.GetComponent<Gameplay>();
         _spawner = (_gameplay == null) ? null : _gameplay.GetComponent<SpawnedObjects>();
         if (_gameplay == null || _spawner == null) Debug.Log("Gameplay null or _spawner null");
+
         _behavior = new CartBehaviorOptions
         {
             IsRespawning = false
         };
+
         StartCoroutine(WaitInit());
     }
 
@@ -63,7 +65,9 @@ public class DropZoneController : MonoBehaviour
 
     private void TryTeleportCart(Collider2D collision)
     {
-        ImprovedCartAttachment obj = collision.gameObject.GetComponent<ImprovedCartAttachment>();
+        ImprovedCartAttachment obj = null;
+        if (collision.gameObject.TryGetComponent<ImprovedCartAttachment>(out var comp))
+            obj = comp;
         if (obj != null)
         {
             if (obj.IsAttached() != null)
@@ -132,18 +136,20 @@ public class DropZoneController : MonoBehaviour
         }
     }
 
+    public CapsuleCollider2D DamnedCart;
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision != null)
+        //Cart -> CapsuleCollider2D -> despawn
+        if (collision != null
+            && collision.CompareTag("cart")
+            && collision is CapsuleCollider2D caps)
         {
-            if (collision.CompareTag("cart"))
-            {
-                TryTeleportCart(collision);
-            }
+            DamnedCart = caps;
+            TryTeleportCart(collision);
         }
-        else
-            Debug.Log("Collision is null");
+
     }
 
     private void OnDrawGizmosSelected()
@@ -155,8 +161,13 @@ public class DropZoneController : MonoBehaviour
             Gizmos.DrawWireCube(box.bounds.center, box.bounds.size);
     }
 
+
+
+
     private void OnDestroy()
     {
         RemoveListeners();
     }
+
+
 }

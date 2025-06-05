@@ -50,7 +50,8 @@ public class FloatingTip : MonoBehaviour
         _animator.enabled = true;
     }
 
-
+    //дочинить
+    //не пропадает
 
 
 
