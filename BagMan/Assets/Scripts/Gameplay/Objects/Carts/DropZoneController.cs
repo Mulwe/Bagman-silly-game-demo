@@ -136,8 +136,6 @@ public class DropZoneController : MonoBehaviour
         }
     }
 
-    public CapsuleCollider2D DamnedCart;
-
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -146,23 +144,9 @@ public class DropZoneController : MonoBehaviour
             && collision.CompareTag("cart")
             && collision is CapsuleCollider2D caps)
         {
-            DamnedCart = caps;
             TryTeleportCart(collision);
         }
-
     }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.cyan;
-
-        Collider2D col = GetComponent<Collider2D>();
-        if (col is BoxCollider2D box)
-            Gizmos.DrawWireCube(box.bounds.center, box.bounds.size);
-    }
-
-
-
 
     private void OnDestroy()
     {
