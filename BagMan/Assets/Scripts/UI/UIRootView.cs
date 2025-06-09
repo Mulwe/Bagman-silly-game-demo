@@ -8,6 +8,7 @@ public class UIRootView : MonoBehaviour
     [SerializeField] private GameObject _tipsScreen;
     [SerializeField] private GameObject _levelCompleteScreen;
 
+
     [Header("Main HUD:")]
     [SerializeField] private GameObject _playerHud;
 
@@ -20,7 +21,9 @@ public class UIRootView : MonoBehaviour
         HideLoadingScreen();
         HideTipsScreen();
         HideLevelCompletedScreen();
+        ShowLevelCompletedScreen();
     }
+
 
     public void ShowLoadingScreen()
     {
@@ -62,7 +65,6 @@ public class UIRootView : MonoBehaviour
         ToogleObjectActive(_playerHud, false);
     }
 
-
     public void FadingTipsScreen(int fadeTimeSeconds)
     {
         var image = _tipsScreen.GetComponent<Image>();
@@ -74,6 +76,7 @@ public class UIRootView : MonoBehaviour
 
     private void ToogleObjectActive(GameObject obj, bool status)
     {
+
         obj.SetActive(status);
     }
 

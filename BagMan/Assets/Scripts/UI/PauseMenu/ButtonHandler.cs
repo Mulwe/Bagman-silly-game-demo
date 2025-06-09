@@ -9,10 +9,12 @@ public class ButtonHandler : MonoBehaviour
 {
     [SerializeField] private Button _btnResume;
     [SerializeField] private Button _btnExit;
+    [SerializeField] private Button _btnRestart;
 
     private EventBus _bus;
     public event Action OnExitClicked;
     public event Action OnResumeClicked;
+    public event Action OnRestartCliked;
 
     private bool _timeStopped = false;
 
@@ -22,22 +24,36 @@ public class ButtonHandler : MonoBehaviour
         if (_bus == null)
             Debug.LogError("EventBus is not init");
         _timeStopped = false;
+        AddListeners();
     }
 
+    public void OnRestartClick()
+    {
+        if (_btnRestart != null)
+        {
+
+            //_bus?.TriggerRestartGame();
+            //save score
+        }
+    }
 
     public void OnResumeClick()
     {
-        OnResumeClicked?.Invoke();
-        _bus.TriggerResumeGame();
-        //_bus.GameResume.Invoke();
+        if (_btnResume != null)
+        {
+            OnResumeClicked?.Invoke();
+            _bus?.TriggerResumeGame();
+        }
     }
 
     public void OnExitClick()
     {
-        OnExitClicked?.Invoke();
-        _bus.TriggerResumeGame();
-        //_bus.GameResume.Invoke();
-        _bus.TriggerExitGame();
+        if (_btnExit != null)
+        {
+            OnExitClicked?.Invoke();
+            _bus?.TriggerResumeGame();
+            _bus?.TriggerExitGame();
+        }
     }
 
     private void OnTimePauseChanged(bool state)
@@ -46,18 +62,6 @@ public class ButtonHandler : MonoBehaviour
             _timeStopped = state;
         else
             _timeStopped = state;
-    }
-
-    private void OnValidate()
-    {
-        if (_btnResume == null)
-        {
-            Debug.LogError($"{nameof(_btnResume)} the reference is not set up yet");
-        }
-        if (_btnExit == null)
-        {
-            Debug.LogError($"{nameof(_btnExit)} the reference is not set up yet");
-        }
     }
 
     private void Awake()
@@ -70,16 +74,27 @@ public class ButtonHandler : MonoBehaviour
                 Button[] buttons = obj.GetComponentsInChildren<Button>(true);
                 _btnResume = buttons.FirstOrDefault(b => b.name == "ButtonResume");
                 _btnExit = buttons.FirstOrDefault(b => b.name == "ButtonExit");
+                _btnRestart = buttons.FirstOrDefault(b => b.name == "ButtonRestart");
             }
         }
     }
 
-    private void OnEnable()
+    private void AddListeners()
     {
-        _bus.GameRunTime.AddListener(OnTimePauseChanged);
+        _bus?.GameRunTime.AddListener(OnTimePauseChanged);
     }
+
+    private void RemoveListeners()
+    {
+        _bus?.GameRunTime.RemoveListener(OnTimePauseChanged);
+    }
+
+
     private void OnDisable()
     {
-        _bus.GameRunTime.RemoveListener(OnTimePauseChanged);
+        if (_bus != null)
+        {
+            RemoveListeners();
+        }
     }
 }

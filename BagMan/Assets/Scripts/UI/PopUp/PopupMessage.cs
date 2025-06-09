@@ -58,7 +58,6 @@ public class PopupMessage
 
     }
 
-
     private CircleCollider2D AddCircleCollider(GameObject interactableObj)
     {
         if (interactableObj == null) return null;

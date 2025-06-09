@@ -38,7 +38,6 @@ public class DropZoneController : MonoBehaviour
         {
             IsRespawning = false
         };
-
         StartCoroutine(WaitInit());
     }
 
@@ -87,18 +86,19 @@ public class DropZoneController : MonoBehaviour
                 {
                     _gm.EventBus.TriggerPlayerCountUpdateUI(_count);
                     if (_count == 1)
+                    {
                         _gm.EventBus.TriggerStartTask();
+                    }
                 }
             }
         }
     }
 
-    void OnCartCountedInScore()
+    private void OnCartCountedInScore()
     {
         //Debug.Log("Timer Triggered by cart");
         StartCoroutine(WaitParametersAndTriggerTimer());
     }
-
 
     IEnumerator WaitParametersAndTriggerTimer()
     {
@@ -135,7 +135,6 @@ public class DropZoneController : MonoBehaviour
             _response = null;
         }
     }
-
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

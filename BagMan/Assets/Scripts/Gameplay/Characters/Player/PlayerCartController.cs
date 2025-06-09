@@ -44,21 +44,22 @@ public class PlayerCartController : MonoBehaviour
     {
         ImprovedCartAttachment.OnCartAttached += HandleCartAttached;
         ImprovedCartAttachment.OnCartDetached += HandleCartDetached;
-
     }
 
     private void OnDisable()
     {
         ImprovedCartAttachment.OnCartAttached -= HandleCartAttached;
         ImprovedCartAttachment.OnCartDetached -= HandleCartDetached;
-
     }
 
-    public void HandleShowPickUpTip()
+    public void HandleShowPickUpTip(string msg)
     {
         if (_tip != null)
         {
-            _tip.HandleShowRequest();
+            if (msg == null)
+                _tip.HandleShowRequest();
+            else
+                _tip.HandleShowRequest(msg);
         }
     }
 
@@ -66,11 +67,12 @@ public class PlayerCartController : MonoBehaviour
     {
         if (_tip != null)
         {
-            _tip.HandleShowRequest();
+            _tip.HandleHideRequest();
         }
     }
 
 
+    //floating tip - PopUp
     private void InitPopUpCollider()
     {
         if (_interactArea == null)

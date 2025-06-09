@@ -174,8 +174,6 @@ public class Gameplay : MonoBehaviour
 
     }
 
-
-
     private void OnGetScore(ulong score)
     {
         //update score

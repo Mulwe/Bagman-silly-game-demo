@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
-  m_Name: 2DVolumeProfile
+  m_Name: Global Volume Profile
   m_EditorClassIdentifier: 
   components:
-  - {fileID: 6381939554004109265}
---- !u!114 &6381939554004109265
+  - {fileID: 8326849069039854379}
+--- !u!114 &8326849069039854379
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -50,13 +50,13 @@ MonoBehaviour:
     m_Value: 5.9
   focalLength:
     m_OverrideState: 1
-    m_Value: 52
+    m_Value: 53
   bladeCount:
     m_OverrideState: 1
-    m_Value: 5
+    m_Value: 4
   bladeCurvature:
     m_OverrideState: 1
-    m_Value: 0.348
+    m_Value: 0.179
   bladeRotation:
     m_OverrideState: 1
     m_Value: 41

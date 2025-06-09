@@ -83,9 +83,10 @@ public class GameEntryPoint
         sceneEntryPoint.Inject(uiReference, buttonHandler, uiHUD,
             playerController, playerEventHandler, gameplay, _bus);
         _uiRoot.HideLoadingScreen();
-        _uiRoot.ShowTipsScreen();
-        _uiRoot.FadingTipsScreen(1);
+        //_uiRoot.ShowTipsScreen();
+        //_uiRoot.FadingTipsScreen(1);
         _uiRoot.ShowPlayerHud();
+        _uiRoot.ShowLevelCompletedScreen();
         sceneEntryPoint.Run();
     }
 

@@ -44,6 +44,8 @@ public class ImprovedCartAttachment : MonoBehaviour
     public static event Action OnCartAttached;
     public static event Action OnCartDetached;
 
+    private readonly int _maxCarts = 4;
+
 
     Vector3 DebugPosition;
 
@@ -106,7 +108,10 @@ public class ImprovedCartAttachment : MonoBehaviour
             {
                 if (!this.Linked && _playerCartController != null)
                 {
-                    _playerCartController.HandleShowPickUpTip();
+                    if (_playerCartController.AttachedCarts < _maxCarts)
+                        _playerCartController.HandleShowPickUpTip(null);
+                    else
+                        _playerCartController.HandleShowPickUpTip("Q - to drop");
                 }
             }
         }
@@ -118,9 +123,12 @@ public class ImprovedCartAttachment : MonoBehaviour
         {
             if (collision is CircleCollider2D)
             {
-                if (this.Linked && _playerCartController != null)
+                if (_playerCartController != null)
                 {
-                    _playerCartController.HandleShowPickUpTip();
+                    if (!this.Linked && _playerCartController.AttachedCarts == _maxCarts)
+                    {
+                        _playerCartController.HandleHidePickUpTip();
+                    }
                 }
             }
         }
