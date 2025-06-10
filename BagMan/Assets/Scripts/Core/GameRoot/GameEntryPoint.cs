@@ -70,7 +70,18 @@ public class GameEntryPoint
 
         //(true) для поиска включая скрытые объекты 
         var uiReference = _uiRoot.GetComponentInChildren<UI_Reference>(true);
-        var buttonHandler = _uiRoot.GetComponentInChildren<ButtonHandler>(true);
+
+        var buttonHandlers = _uiRoot.GetComponentsInChildren<ButtonHandler>(true);
+        ButtonHandler buttonHandler = null;
+        ButtonHandler buttonHandlerEndLevel = null;
+        foreach (var handler in buttonHandlers)
+        {
+            if (handler.CompareTag("Menu"))
+                handler.TryGetComponent<ButtonHandler>(out buttonHandler);
+            else if (handler.CompareTag("UI_EndLevel"))
+                handler.TryGetComponent<ButtonHandler>(out buttonHandlerEndLevel);
+        }
+
         var uiHUD = _uiRoot.GetComponentInChildren<UI_StatsTracker>(true);
         //данный код в DontDestroyOnLoad поэтому достаем объекты главной сцены через Object
         var playerController = Object.FindFirstObjectByType<PlayerController>();
@@ -82,6 +93,8 @@ public class GameEntryPoint
         // Внедряем зависимости. Null reference если не прокинуть зависимости.
         sceneEntryPoint.Inject(uiReference, buttonHandler, uiHUD,
             playerController, playerEventHandler, gameplay, _bus);
+        buttonHandlerEndLevel.Initialize(_bus);
+
         _uiRoot.HideLoadingScreen();
         //_uiRoot.ShowTipsScreen();
         //_uiRoot.FadingTipsScreen(1);

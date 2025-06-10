@@ -3,18 +3,15 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(GameObject))]
-[RequireComponent(typeof(Button))]
-public class ButtonHandler : MonoBehaviour
+public class EndLevelButtons : MonoBehaviour
 {
-    [SerializeField] private Button _btnResume;
     [SerializeField] private Button _btnExit;
+    [SerializeField] private Button _btnRestart;
 
     private EventBus _bus;
     public event Action OnExitClicked;
-    public event Action OnResumeClicked;
+    public event Action OnRestartCliked;
 
-    private bool _timeStopped = false;
 
     public void Initialize(EventBus bus)
     {
@@ -23,9 +20,19 @@ public class ButtonHandler : MonoBehaviour
         if (_bus == null)
             Debug.LogError("EventBus is not init");
 
-        _timeStopped = false;
         AddListeners();
     }
+
+    public void OnRestartClick()
+    {
+        if (_btnRestart != null)
+        {
+            OnRestart Clicked?.Invoke();
+            //_bus?.TriggerRestartGame();
+            //save score
+        }
+    }
+
 
 
     public void OnExitClick()
@@ -34,17 +41,8 @@ public class ButtonHandler : MonoBehaviour
         {
             Debug.Log("OnExitClick");
             OnExitClicked?.Invoke();
-            _bus?.TriggerResumeGame();
             _bus?.TriggerExitGame();
         }
-    }
-
-    private void OnTimePauseChanged(bool state)
-    {
-        if (state)
-            _timeStopped = state;
-        else
-            _timeStopped = state;
     }
 
     private void Awake()
@@ -52,28 +50,26 @@ public class ButtonHandler : MonoBehaviour
         var obj = this.gameObject;
         if (obj)
         {
-            if (obj.CompareTag("Menu") || obj.layer == LayerMask.NameToLayer("UI"))
+            if (obj.layer == LayerMask.NameToLayer("UI"))
             {
                 Button[] buttons = obj.GetComponentsInChildren<Button>(true);
                 if (buttons != null && buttons.Length > 0)
                 {
-                    _btnResume = buttons.FirstOrDefault(b => b.name == "ButtonResume");
                     _btnExit = buttons.FirstOrDefault(b => b.name == "ButtonExit");
-
+                    _btnRestart = buttons.FirstOrDefault(b => b.name == "ButtonRestart");
                 }
             }
         }
     }
 
-
     private void AddListeners()
     {
-        _bus?.GameRunTime.AddListener(OnTimePauseChanged);
+        // _bus?.GameRunTime.AddListener(OnTimePauseChanged);
     }
 
     private void RemoveListeners()
     {
-        _bus?.GameRunTime.RemoveListener(OnTimePauseChanged);
+        //_bus?.GameRunTime.RemoveListener(OnTimePauseChanged);
     }
 
     private void OnDisable()
