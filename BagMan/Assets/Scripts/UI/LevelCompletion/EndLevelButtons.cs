@@ -9,9 +9,9 @@ public class EndLevelButtons : MonoBehaviour
     [SerializeField] private Button _btnRestart;
 
     private EventBus _bus;
-    public event Action OnExitClicked;
-    public event Action OnRestartCliked;
 
+    public event Action OnExitClickedd;
+    public event Action OnRestartCliked;
 
     public void Initialize(EventBus bus)
     {
@@ -27,8 +27,11 @@ public class EndLevelButtons : MonoBehaviour
     {
         if (_btnRestart != null)
         {
-            OnRestart Clicked?.Invoke();
+            OnRestartCliked?.Invoke();
+
             //_bus?.TriggerRestartGame();
+
+
             //save score
         }
     }
@@ -40,8 +43,7 @@ public class EndLevelButtons : MonoBehaviour
         if (_btnExit != null)
         {
             Debug.Log("OnExitClick");
-            OnExitClicked?.Invoke();
-            _bus?.TriggerExitGame();
+            OnExitClickedd?.Invoke();
         }
     }
 
@@ -64,7 +66,7 @@ public class EndLevelButtons : MonoBehaviour
 
     private void AddListeners()
     {
-        // _bus?.GameRunTime.AddListener(OnTimePauseChanged);
+        //_bus?.GameRunTime.AddListener(OnTimePauseChanged);
     }
 
     private void RemoveListeners()

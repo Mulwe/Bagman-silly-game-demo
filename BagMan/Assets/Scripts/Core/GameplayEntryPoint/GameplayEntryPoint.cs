@@ -9,7 +9,7 @@ public class GameplayEntryPoint : MonoBehaviour
     private GameManager _gm;
 
     private UI_Reference _uiReference;
-    private ButtonHandler _buttonHandler;
+    private Handlers _buttonHandlers;
     private PlayerController _playerController;
     private UI_StatsTracker _UI_StatsTracker;
     private Gameplay _gameplay;
@@ -18,18 +18,18 @@ public class GameplayEntryPoint : MonoBehaviour
 
 
 
-    public void Inject(UI_Reference uiReference, ButtonHandler buttonHandler, UI_StatsTracker ui_StatsTracker,
+    public void Inject(UI_Reference uiReference, Handlers buttonHandlers, UI_StatsTracker ui_StatsTracker,
                       PlayerController playerController, PlayerEventHandler playerEventHandler,
                       Gameplay gameplay, EventBus bus)
     {
         this._bus = bus;
         this._gameplay = gameplay;
         this._uiReference = uiReference;
-        this._buttonHandler = buttonHandler;
+        this._buttonHandlers = buttonHandlers;
         this._playerController = playerController;
         this._UI_StatsTracker = ui_StatsTracker;
         this._playerEventHandler = playerEventHandler;
-        _gm = new GameManager(_uiReference, _buttonHandler, _UI_StatsTracker,
+        _gm = new GameManager(_uiReference, buttonHandlers, _UI_StatsTracker,
             _playerController, _bus, _gameplay, _playerEventHandler);
     }
 
@@ -61,7 +61,7 @@ public class GameplayEntryPoint : MonoBehaviour
 
     private T GetIfNotInit<T>() where T : Component
     {
-        var component = GetComponent<T>();
+        TryGetComponent<T>(out var component);
         if (component == null)
         {
             component = gameObject.AddComponent<T>();
@@ -79,7 +79,8 @@ public class GameplayEntryPoint : MonoBehaviour
     {
         // Регистрация основных компонентов сцены
         _sceneRootBinder.Register<UI_Reference>(_gm.UI_Reference);
-        _sceneRootBinder.Register<ButtonHandler>(_gm.BtnHandler);
+        _sceneRootBinder.Register<ButtonHandler>(_gm.BtnHandlerMenu);
+        _sceneRootBinder.Register<EndLevelButtons>(_gm.BtnHandlerEndLevel);
         _sceneRootBinder.Register<PlayerController>(_gm.PlayerController);
         _sceneRootBinder.Register<UI_StatsTracker>(_gm.UI_StatsTracker);
         _sceneRootBinder.Register<PlayerEventHandler>(_gm.PlayerEventHandler);
@@ -93,7 +94,8 @@ public class GameplayEntryPoint : MonoBehaviour
     {
         // Внедрение зависимостей в компоненты
         _sceneRootBinder.InjectDependencies(_gm.UI_Reference);
-        _sceneRootBinder.InjectDependencies(_gm.BtnHandler);
+        _sceneRootBinder.InjectDependencies(_gm.BtnHandlerMenu);
+        _sceneRootBinder.InjectDependencies(_gm.BtnHandlerEndLevel);
         _sceneRootBinder.InjectDependencies(_gm.PlayerController);
         _sceneRootBinder.InjectDependencies(_gm.UI_StatsTracker);
         _sceneRootBinder.InjectDependencies(_gm.PlayerEventHandler);
@@ -104,7 +106,8 @@ public class GameplayEntryPoint : MonoBehaviour
     {
         // Инициализация компонентов в правильном порядке
         _uiReference.Initialize(_bus, _uiReference);
-        _buttonHandler.Initialize(_bus);
+        _buttonHandlers.GetButtonHandler().Initialize(_bus);
+        _buttonHandlers.GetEndLevelHandler().Initialize(_bus);
         _playerController.Initialize(_bus);
         _UI_StatsTracker.Initialize(_gm);
         _gameplay.Initialize(_gm);

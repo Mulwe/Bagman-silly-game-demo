@@ -31,15 +31,25 @@ public class EventBus
     public UnityEvent GameLevelComplete { get; } = new();
     public UnityEvent<ulong> GameCountScore { get; } = new();
 
+    //save state
+    public UnityEvent GameScoreSave { get; } = new();
+    public UnityEvent GameScoreClear { get; } = new();
+
+    public UnityEvent GameFinishedSuccess { get; } = new();
+    public UnityEvent GameFinishedLose { get; } = new();
+
 
     public void TriggerGameLevelComplete() => GameLevelComplete.Invoke();
     public void TriggerGameCountScore(ulong score) => GameCountScore.Invoke(score);
+    public void TriggerPlayerStatsChanged() => PlayerStatsChanged.Invoke();
+
 
     //Timer triggers
     public void TriggerTimer(Timer timer) => Timer.Invoke(timer);
     public void TriggerTimerReceived() => TimerReceived.Invoke();
 
-    public void TriggerPlayerStatsChanged() => PlayerStatsChanged.Invoke();
+
+
     //UI Updates
     public void TriggerTimerUI(Timer timer) => Timer.Invoke(timer);
     public void TriggerPlayerStaminaUpdateUI() => PlayerStaminaUpdateUI.Invoke();

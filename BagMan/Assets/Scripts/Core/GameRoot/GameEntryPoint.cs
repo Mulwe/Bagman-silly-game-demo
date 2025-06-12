@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 //запускает сцены проверяет сцена игры или не из игры
 //Loading screen как заглушка UIRootView не выгружается и работает в корутине
 //точка входа запускает сцену со своей точкой входа
-//
+
 
 public class GameEntryPoint
 {
@@ -70,19 +70,12 @@ public class GameEntryPoint
 
         //(true) для поиска включая скрытые объекты 
         var uiReference = _uiRoot.GetComponentInChildren<UI_Reference>(true);
-
-        var buttonHandlers = _uiRoot.GetComponentsInChildren<ButtonHandler>(true);
-        ButtonHandler buttonHandler = null;
-        ButtonHandler buttonHandlerEndLevel = null;
-        foreach (var handler in buttonHandlers)
-        {
-            if (handler.CompareTag("Menu"))
-                handler.TryGetComponent<ButtonHandler>(out buttonHandler);
-            else if (handler.CompareTag("UI_EndLevel"))
-                handler.TryGetComponent<ButtonHandler>(out buttonHandlerEndLevel);
-        }
-
         var uiHUD = _uiRoot.GetComponentInChildren<UI_StatsTracker>(true);
+
+        Handlers handlers = new Handlers(_uiRoot);
+
+        handlers.GetButtonHandler();
+        handlers.GetEndLevelHandler();
         //данный код в DontDestroyOnLoad поэтому достаем объекты главной сцены через Object
         var playerController = Object.FindFirstObjectByType<PlayerController>();
         var gameplay = Object.FindFirstObjectByType<Gameplay>();
@@ -91,9 +84,10 @@ public class GameEntryPoint
         _bus = new EventBus();
 
         // Внедряем зависимости. Null reference если не прокинуть зависимости.
-        sceneEntryPoint.Inject(uiReference, buttonHandler, uiHUD,
+        sceneEntryPoint.Inject(uiReference, handlers, uiHUD,
             playerController, playerEventHandler, gameplay, _bus);
-        buttonHandlerEndLevel.Initialize(_bus);
+
+
 
         _uiRoot.HideLoadingScreen();
         //_uiRoot.ShowTipsScreen();

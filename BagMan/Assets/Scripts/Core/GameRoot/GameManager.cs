@@ -4,7 +4,8 @@ public class GameManager
 {
     //хранит зависимости и освобождает ресурсы при необходимости. 1 на всю сцену
     private UI_Reference _uiReference;
-    private ButtonHandler _buttonHandler;
+    private ButtonHandler _btnHandlerMenu;
+    private EndLevelButtons _btnHandlerEndLevel;
     private PlayerController _playerController;
     private UI_StatsTracker _UI_StatsTracker;
     private EventBus _eventBus;
@@ -16,7 +17,8 @@ public class GameManager
     public EventBus EventBus => _eventBus;
     public Gameplay GamePlay => _gameplay;
     public PlayerController PlayerController => _playerController;
-    public ButtonHandler BtnHandler => _buttonHandler;
+    public ButtonHandler BtnHandlerMenu => _btnHandlerMenu;
+    public EndLevelButtons BtnHandlerEndLevel => _btnHandlerEndLevel;
     public UI_Reference UI_Reference => _uiReference;
     public UI_StatsTracker UI_StatsTracker => _UI_StatsTracker;
     public PlayerEventHandler PlayerEventHandler => _playerEventHandler;
@@ -26,12 +28,13 @@ public class GameManager
     public CharacterStats PlayerStats => _player;
     public bool IsInit => _isCreated;
 
-    public GameManager(UI_Reference ui, ButtonHandler btnHandler, UI_StatsTracker uI_Stats,
+    public GameManager(UI_Reference ui, Handlers btnHandlers, UI_StatsTracker uI_Stats,
         PlayerController playerController, EventBus eventBus, Gameplay gameplay,
         PlayerEventHandler pEventHandler)
     {
         _uiReference = ui;
-        _buttonHandler = btnHandler;
+        _btnHandlerMenu = btnHandlers.GetButtonHandler();
+        _btnHandlerEndLevel = btnHandlers.GetEndLevelHandler();
         _playerController = playerController;
         _eventBus = eventBus;
         _gameplay = gameplay;
@@ -48,8 +51,8 @@ public class GameManager
             Debug.LogWarning($"{this}: EventBus was null. A New instance was created");
         }
 
-        if (_uiReference == null || _buttonHandler == null || _playerController == null || _gameplay == null
-            || _UI_StatsTracker == null)
+        if (_uiReference == null || _btnHandlerMenu == null || _playerController == null || _gameplay == null
+            || _UI_StatsTracker == null || _btnHandlerEndLevel == null)
         {
             Debug.LogError($"{this}: null reference");
             return;
@@ -78,7 +81,8 @@ public class GameManager
     private void Clear()
     {
         _uiReference = null;
-        _buttonHandler = null;
+        _btnHandlerMenu = null;
+        _btnHandlerEndLevel = null;
         _playerController = null;
         _eventBus.RemoveAllListeners(); //!
         if (_isCreated)

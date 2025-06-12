@@ -43,7 +43,7 @@ public class Gameplay : MonoBehaviour
         {
             Debug.Log($"{this}: gm is null");
         }
-        if (gm?.BtnHandler == null || gm?.PlayerController == null)
+        if (gm?.BtnHandlerMenu == null || gm?.PlayerController == null)
             Debug.LogError("Gameplay: References Init error");
         else
             GameAndSpawnInitialization(gm);
