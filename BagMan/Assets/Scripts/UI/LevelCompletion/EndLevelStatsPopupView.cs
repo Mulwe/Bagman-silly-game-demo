@@ -30,9 +30,18 @@ public class EndLevelStatsPopup : MonoBehaviour
         if (eventBus != null)
         {
             eventBus.GameCountScore.AddListener(OnScoreCount);
+            eventBus.GameClearScore.AddListener(OnScoreCleared);
             eventBus.GameLevelComplete.AddListener(OnLevelCompleted);
             eventBus.GameLevelGoalComplete.AddListener(OnGoalAchieved);
             eventBus.HideLevelStats.AddListener(HidePopup);
+        }
+    }
+
+    private void OnScoreCleared()
+    {
+        if (_dataScore != null)
+        {
+            _score = 0;
         }
     }
 
@@ -41,6 +50,7 @@ public class EndLevelStatsPopup : MonoBehaviour
         if (eventBus != null)
         {
             eventBus.GameCountScore.RemoveListener(OnScoreCount);
+            eventBus.GameClearScore.AddListener(OnScoreCleared);
             eventBus.GameLevelComplete.RemoveListener(OnLevelCompleted);
             eventBus.GameLevelGoalComplete.RemoveListener(OnGoalAchieved);
             eventBus.HideLevelStats.RemoveListener(HidePopup);
@@ -98,6 +108,7 @@ public class EndLevelStatsPopup : MonoBehaviour
 
     private void GetTextMesh<T>(T component, out TextMeshProUGUI textMesh) where T : Component
     {
+        textMesh = null;
         if (component != null)
         {
             component.TryGetComponent<TextMeshProUGUI>(out var data);
@@ -106,7 +117,6 @@ public class EndLevelStatsPopup : MonoBehaviour
                 textMesh = data;
             }
         }
-        textMesh = null;
     }
 
     private void Awake()
@@ -116,18 +126,6 @@ public class EndLevelStatsPopup : MonoBehaviour
 
         GetTextMesh<GlowingMaterial>(score_data, out _dataScore);
         GetTextMesh<Greeting>(greeting, out _dataGreeting);
-
-        /*
-        if (score_data != null)
-        {
-            score_data.TryGetComponent<TextMeshProUGUI>(out var text);
-            if (text != null)
-                _data = text;
-            else
-                Debug.Log($"Score not found");
-        }
-        */
-
         HidePopup();
     }
 

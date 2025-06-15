@@ -603,9 +603,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _objPrefab: {fileID: 6860246072868031059, guid: e9054f67a8906904297aef249649a046,
     type: 3}
-  _amount: 20
+  _amount: 1
   _spawnZone: {fileID: 4464816732817902809}
-  _listObjects: []
+  listObjects: []
 --- !u!1 &914699618
 GameObject:
   m_ObjectHideFlags: 1

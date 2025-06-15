@@ -25,7 +25,7 @@ public class Gameplay : MonoBehaviour
     /// <summary>
     /// Level timer duration
     /// </summary>
-    private float _timeDuration = 60f * 3f;
+    private float _timeDuration = 5f;
     private float _delay = 10f;
 
     private int _goalCondition = 0;
