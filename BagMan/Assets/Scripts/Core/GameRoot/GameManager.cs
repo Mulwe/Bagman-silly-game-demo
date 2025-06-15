@@ -3,102 +3,114 @@ using UnityEngine;
 public class GameManager
 {
     //хранит зависимости и освобождает ресурсы при необходимости. 1 на всю сцену
-    private UI_Reference _uiReference;
-    private ButtonHandler _btnHandlerMenu;
-    private EndLevelButtons _btnHandlerEndLevel;
-    private PlayerController _playerController;
-    private UI_StatsTracker _UI_StatsTracker;
-    private EventBus _eventBus;
-    private Gameplay _gameplay;
-    private PlayerEventHandler _playerEventHandler;
+    public UI_Reference UI_Reference { get; private set; }
+    public EndLevelStatsPopup EndLevelPopUp { get; private set; }
+    public Handlers Handlers { get; private set; }
+    public ButtonHandler BtnHandlerMenu { get; private set; }
+    public EndLevelButtons BtnHandlerEndLevel { get; private set; }
+
+    // Player contrroller & PlayerEventHandler (player's events, connected gameobjects etc) 
+    public PlayerController PlayerController { get; private set; }
+    public PlayerEventHandler PlayerEventHandler { get; private set; }
+
+    public UI_StatsTracker UI_StatsTracker { get; private set; }
+    public EventBus EventBus { get; private set; }
+    public Gameplay GamePlay { get; private set; }
 
     private bool _isCreated = false;
 
-    public EventBus EventBus => _eventBus;
-    public Gameplay GamePlay => _gameplay;
-    public PlayerController PlayerController => _playerController;
-    public ButtonHandler BtnHandlerMenu => _btnHandlerMenu;
-    public EndLevelButtons BtnHandlerEndLevel => _btnHandlerEndLevel;
-    public UI_Reference UI_Reference => _uiReference;
-    public UI_StatsTracker UI_StatsTracker => _UI_StatsTracker;
-    public PlayerEventHandler PlayerEventHandler => _playerEventHandler;
 
     //Player stats
-    private CharacterStats _player;
-    public CharacterStats PlayerStats => _player;
+    public CharacterStats PlayerStats { get; private set; }
+
     public bool IsInit => _isCreated;
 
     public GameManager(UI_Reference ui, Handlers btnHandlers, UI_StatsTracker uI_Stats,
         PlayerController playerController, EventBus eventBus, Gameplay gameplay,
-        PlayerEventHandler pEventHandler)
+        PlayerEventHandler pEventHandler, EndLevelStatsPopup endLevelPopUp)
     {
-        _uiReference = ui;
-        _btnHandlerMenu = btnHandlers.GetButtonHandler();
-        _btnHandlerEndLevel = btnHandlers.GetEndLevelHandler();
-        _playerController = playerController;
-        _eventBus = eventBus;
-        _gameplay = gameplay;
-        _UI_StatsTracker = uI_Stats;
-        _playerEventHandler = pEventHandler;
+        UI_Reference = ui;
+        Handlers = btnHandlers;
+        BtnHandlerMenu = btnHandlers.GetButtonHandler();
+        BtnHandlerEndLevel = btnHandlers.GetEndLevelHandler();
+        PlayerController = playerController;
+        EventBus = eventBus;
+        GamePlay = gameplay;
+        UI_StatsTracker = uI_Stats;
+        PlayerEventHandler = pEventHandler;
+        EndLevelPopUp = endLevelPopUp;
     }
 
     public void Init()
     {
-        if (_eventBus == null)
+        if (EventBus == null)
         {
-            _eventBus = new EventBus();
+            EventBus = new EventBus();
             _isCreated = true;
             Debug.LogWarning($"{this}: EventBus was null. A New instance was created");
         }
 
-        if (_uiReference == null || _btnHandlerMenu == null || _playerController == null || _gameplay == null
-            || _UI_StatsTracker == null || _btnHandlerEndLevel == null)
+        if (UI_Reference == null || BtnHandlerMenu == null || PlayerController == null || GamePlay == null
+            || UI_StatsTracker == null || BtnHandlerEndLevel == null)
         {
             Debug.LogError($"{this}: null reference");
             return;
         }
 
-        _player ??= new CharacterStats(100, 200, 0.5f);
+        PlayerStats ??= new CharacterStats(100, 200, 0.5f);
     }
-
-
 
     public CharacterStats GetPlayerStats()
     {
-        if (_player == null)
+        if (PlayerStats == null)
         {
             Debug.LogError($"{this}: Player Stats is null!");
-            return _player;
+            return PlayerStats;
         }
-        return _player;
+        return PlayerStats;
     }
 
-    public void ReInitializePlayer(int health, int stamina, float rate)
+    public void InitPlayerStats(int health, int stamina, float rate)
     {
-        _player ??= new CharacterStats(health, stamina, rate);
+        if (PlayerStats == null)
+            PlayerStats = new CharacterStats();
+        if (PlayerStats != null)
+        {
+            PlayerStats.ChangeMaxHealth(health);
+            PlayerStats.ChangeMaxStamina(stamina);
+            PlayerStats.SetStaminaRate(rate);
+        }
+    }
+
+    public void ClearPlayerData(EventBus evntBus)
+    {
+        evntBus?.TriggerResetGameData();
+    }
+
+    public void ClearPlayerData(EventBus evntBus, float newDefaultSpeed)
+    {
+        evntBus?.TriggerResetGameData();
+        if (PlayerStats != null)
+        {
+            PlayerStats.SetCharacterSpeed(newDefaultSpeed);
+            evntBus?.TriggerPlayerDefaultSpeed(PlayerStats.GetCharacterSpeed());
+        }
     }
 
     private void Clear()
     {
-        _uiReference = null;
-        _btnHandlerMenu = null;
-        _btnHandlerEndLevel = null;
-        _playerController = null;
-        _eventBus.RemoveAllListeners(); //!
+        EventBus.RemoveAllListeners(); //!
         if (_isCreated)
         {
-            _eventBus = null;
+            EventBus = null;
             _isCreated = false;
         }
-        _gameplay = null;
-    }
 
-    ~GameManager()
-    {
-        //отписка от ивентов
-        //очистка ресурсов
-        //очистка ссылок
-        Clear();
+        GamePlay.gameObject.SetActive(false);
+        GamePlay = null;
+        PlayerEventHandler.gameObject.SetActive(false);
+        PlayerEventHandler = null;
+        PlayerStats = null;
     }
 
 }

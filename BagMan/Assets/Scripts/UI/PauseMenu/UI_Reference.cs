@@ -36,11 +36,8 @@ public class UI_Reference : MonoBehaviour
     private void OnValidate()
     {
         if (_reference == null)
-        {
             _reference = gameObject;
-            // Debug.Log($"{nameof(_reference)} was automatically set.");
-        }
-        if (!_reference.tag.Equals("Menu"))
+        if (_reference.CompareTag("Menu") == false)
             Debug.LogError("UIMenuPause reference:  Wrong tag!\nName of Component:" + _reference.name);
     }
 

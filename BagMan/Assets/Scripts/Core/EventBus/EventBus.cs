@@ -10,65 +10,125 @@ public class EventBus
     public UnityEvent<bool> UI_Menu { get; } = new();
     public UnityEvent UI_GameOver { get; } = new UnityEvent();
     public UnityEvent<bool> PlayerControl { get; } = new();
-    public UnityEvent<bool> GameRunTime { get; } = new();
-    public UnityEvent GamePause { get; } = new();
-    public UnityEvent GameResume { get; } = new();
-    public UnityEvent GameExit { get; } = new UnityEvent();
+    public UnityEvent<bool> UIRunTime { get; } = new();
+    public UnityEvent UIPause { get; } = new();
+    public UnityEvent UIResume { get; } = new();
     public UnityEvent StartTask { get; } = new UnityEvent();
 
     //UI
     public UnityEvent PlayerStaminaUpdateUI { get; } = new();
     public UnityEvent PlayerSpeedUpdateUI { get; } = new();
-    public UnityEvent<float> PlayerCountUpdateUI = new();
+    public UnityEvent<ulong> PlayerCountUpdateUI = new();
     public UnityEvent TemperatureChangedUI { get; } = new();
 
     public UnityEvent PlayerStatsChanged { get; } = new();
+    public UnityEvent<float> PlayerDefaultSpeed { get; } = new();
+
+    public UnityEvent ResetPlayerData { get; } = new();
 
     public UnityEvent<Timer> Timer { get; } = new();
     public UnityEvent TimerReceived { get; } = new();
     public UnityEvent AddPoint { get; } = new();
 
     public UnityEvent GameLevelComplete { get; } = new();
+    public UnityEvent GameLevelGoalComplete { get; } = new();
     public UnityEvent<ulong> GameCountScore { get; } = new();
-
-    //save state
-    public UnityEvent GameScoreSave { get; } = new();
-    public UnityEvent GameScoreClear { get; } = new();
-
-    public UnityEvent GameFinishedSuccess { get; } = new();
-    public UnityEvent GameFinishedLose { get; } = new();
+    public UnityEvent GameClearScore { get; } = new();
 
 
-    public void TriggerGameLevelComplete() => GameLevelComplete.Invoke();
-    public void TriggerGameCountScore(ulong score) => GameCountScore.Invoke(score);
-    public void TriggerPlayerStatsChanged() => PlayerStatsChanged.Invoke();
+    public UnityEvent GameExit { get; } = new UnityEvent();
+    public UnityEvent GameRestart { get; } = new();
+    public UnityEvent HideLevelStats { get; } = new();
+    public UnityEvent ShowLevelStats { get; } = new();
+    // public UnityEvent GameStartLevel { get; } = new();
+
+
+    public void TriggerPlayerDefaultSpeed(float newSpeed)
+    {
+        PlayerDefaultSpeed.Invoke(newSpeed);
+    }
+
+    public void TriggerHideLevelStats()
+        => HideLevelStats.Invoke();
+
+    public void TriggerShowLevelStats()
+        => ShowLevelStats.Invoke();
+
+    public void TriggerRestartGame()
+        => GameRestart.Invoke();
+
+    public void TriggerGameLevelComplete()
+        => GameLevelComplete.Invoke();
+
+    public void TriggerGameLevelGoalComplete()
+        => GameLevelGoalComplete.Invoke();
+
+    public void TriggerGameSetScore(ulong score)
+        => GameCountScore.Invoke(score);
+
+    public void TriggerGameClearScore()
+        => GameClearScore.Invoke();
+
+
+
+    public void TriggerPlayerStatsChanged()
+        => PlayerStatsChanged.Invoke();
+
+    public void TriggerResetGameData()
+        => ResetPlayerData.Invoke();
 
 
     //Timer triggers
-    public void TriggerTimer(Timer timer) => Timer.Invoke(timer);
-    public void TriggerTimerReceived() => TimerReceived.Invoke();
+    public void TriggerTimer(Timer timer)
+        => Timer.Invoke(timer);
+
+    public void TriggerTimerReceived()
+        => TimerReceived.Invoke();
+
+    //UI EndLevel
 
 
 
     //UI Updates
-    public void TriggerTimerUI(Timer timer) => Timer.Invoke(timer);
-    public void TriggerPlayerStaminaUpdateUI() => PlayerStaminaUpdateUI.Invoke();
-    public void TriggerPlayerSpeedUpdateUI() => PlayerSpeedUpdateUI.Invoke();
-    public void TriggerPlayerCountUpdateUI(float count) => PlayerCountUpdateUI.Invoke(count);
-    public void TriggerTemperatureChangedUI() => TemperatureChangedUI.Invoke();
+    public void TriggerTimerUI(Timer timer)
+        => Timer.Invoke(timer);
+
+    public void TriggerPlayerStaminaUpdateUI()
+        => PlayerStaminaUpdateUI.Invoke();
+
+    public void TriggerPlayerSpeedUpdateUI()
+        => PlayerSpeedUpdateUI.Invoke();
+
+    public void TriggerPlayerCountUpdateUI(ulong count)
+        => PlayerCountUpdateUI.Invoke(count);
+
+    public void TriggerTemperatureChangedUI()
+        => TemperatureChangedUI.Invoke();
+
 
     //Cart on spawnzone - trigger timer
-    public void TriggerStartTask() => StartTask.Invoke();
+    public void TriggerStartTask()
+        => StartTask.Invoke();
 
     //System Game events
-    public void TriggerExitGame() => GameExit.Invoke();
-    public void TriggerPauseGame() => GamePause.Invoke();
-    public void TriggerResumeGame() => GameResume.Invoke();
+    public void TriggerExitGame()
+        => GameExit.Invoke();
+
+    public void TriggerResumeGame()
+        => UIResume.Invoke();
+
+    public void TriggerPauseGame()
+        => UIPause.Invoke();
     // change flag when the time stops
-    public void TriggerGameRunTime(bool status) => GameRunTime.Invoke(status);
+    public void TriggerUIRunTime(bool status)
+        => UIRunTime.Invoke(status);
+
     //System UI
-    public void TriggerUIShowPause(bool status) => UI_Menu.Invoke(status);
-    public void TriggerGameOver() => UI_GameOver.Invoke();
+    public void TriggerUIShowPause(bool status)
+        => UI_Menu.Invoke(status);
+
+    public void TriggerGameOver()
+        => UI_GameOver.Invoke();
 
     public void RemoveAllListeners()
     {
@@ -87,9 +147,9 @@ public class EventBus
         UI_Menu.RemoveAllListeners();
         UI_GameOver.RemoveAllListeners();
         PlayerControl.RemoveAllListeners();
-        GameRunTime.RemoveAllListeners();
+        UIRunTime.RemoveAllListeners();
         GameExit.RemoveAllListeners();
-        GamePause.RemoveAllListeners();
-        GameResume.RemoveAllListeners();
+        UIPause.RemoveAllListeners();
+        UIResume.RemoveAllListeners();
     }
 }

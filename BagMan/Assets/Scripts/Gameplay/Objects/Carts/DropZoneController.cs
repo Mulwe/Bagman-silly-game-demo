@@ -22,6 +22,8 @@ public class DropZoneController : MonoBehaviour
     private Coroutine _response;
 
 
+
+
     private void Start()
     {
         DropZoneCollider = GetComponent<BoxCollider2D>();
@@ -55,11 +57,22 @@ public class DropZoneController : MonoBehaviour
     public void AddListeners()
     {
         _gm?.EventBus?.StartTask.AddListener(OnCartCountedInScore);
+        _gm?.EventBus?.GameClearScore.AddListener(OnScoreCleared);
+
+        //запросить счет. отправить счет
+        // _gm?.EventBus?.GameCountScore.AddListener(OnCartCountedInScore);
+    }
+
+    private void OnScoreCleared()
+    {
+        _count = 0;
+        _gm.EventBus.TriggerPlayerCountUpdateUI(_count);
     }
 
     public void RemoveListeners()
     {
         _gm?.EventBus?.StartTask.RemoveListener(OnCartCountedInScore);
+        _gm?.EventBus?.GameClearScore.RemoveListener(OnScoreCleared);
     }
 
     private void TryTeleportCart(Collider2D collision)
@@ -82,14 +95,30 @@ public class DropZoneController : MonoBehaviour
             if (_spawner.RespawnObject(cart.gameObject, _behavior.IsRespawning))
             {
                 _count += 1;
-                if (_gm != null && _gm.EventBus != null)
-                {
-                    _gm.EventBus.TriggerPlayerCountUpdateUI(_count);
-                    if (_count == 1)
-                    {
-                        _gm.EventBus.TriggerStartTask();
-                    }
-                }
+                UpdateAllViewModels();
+            }
+        }
+    }
+
+    private float UlongToFloat(ulong ulongValue)
+    {
+        if (ulongValue <= float.MaxValue)
+        {
+            return ulongValue * 1.0f;
+        }
+        return float.MaxValue;
+    }
+
+
+    private void UpdateAllViewModels()
+    {
+        if (_gm != null && _gm.EventBus != null)
+        {
+            _gm.EventBus.TriggerGameSetScore(_count);
+            _gm.EventBus.TriggerPlayerCountUpdateUI(_count);
+            if (_count == 1)
+            {
+                _gm.EventBus.TriggerStartTask();
             }
         }
     }

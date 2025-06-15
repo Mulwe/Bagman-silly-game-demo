@@ -8,7 +8,8 @@ public class UITimer : MonoBehaviour
     [SerializeField] private UI_StatsTracker _ui_StatsTracker;
     private TextMeshProUGUI _textMeshProUGUI;
 
-
+    private Coroutine _coroutine;
+    private bool _isRunning = false;
     private EventBus _eventBus;
     private Timer _timer;
 
@@ -31,7 +32,21 @@ public class UITimer : MonoBehaviour
     private void OnEnable()
     {
         if (_eventBus == null)
+        {
             StartCoroutine(WaitInit());
+        }
+    }
+
+    void AddListeners()
+    {
+        _eventBus?.Timer.AddListener(ShowTimerUI);
+    }
+
+    void RemoveListeners()
+    {
+        if (_timer != null)
+            _timer.OnTimerComplete -= HandleTimerCompletion;
+        _eventBus?.Timer.RemoveListener(ShowTimerUI);
     }
 
     IEnumerator WaitInit()
@@ -42,14 +57,25 @@ public class UITimer : MonoBehaviour
                 _eventBus = _ui_StatsTracker.EventBus;
             yield return null;
         }
-        _eventBus.Timer.AddListener(ShowTimerUI);
+        AddListeners();
     }
 
     //Cобытие ответ, если класс инициализирован отправить ответ и работа с классом дальше
+    private bool IsTimerUIActive()
+    {
+        if (_textMeshProUGUI != null)
+        {
+            float alpha = _textMeshProUGUI.color.a;
+            return alpha > 0.0f && alpha <= 1.0f;
+        }
+        return false;
+    }
+
     private void ShowTimerUI(Timer t)
     {
-        if (t != null)
+        if (t != null && IsTimerUIActive() == false)
         {
+            _eventBus?.Timer.RemoveListener(ShowTimerUI);
             _eventBus?.TriggerTimerReceived();
             _timer = t;
             _timer.OnTimerComplete += HandleTimerCompletion;
@@ -57,7 +83,11 @@ public class UITimer : MonoBehaviour
             {
                 var (min, sec) = NormilizeTime(_timer.GetRemainingTime());
                 _textMeshProUGUI.text = $"{min:00}:{sec:00}";
-                StartCoroutine(FadeIn(_textMeshProUGUI, 1.0f));
+                if (!_isRunning)
+                {
+                    _isRunning = true;
+                    _coroutine = StartCoroutine(FadeIn(_textMeshProUGUI, 1.0f));
+                }
             }
         }
     }
@@ -65,12 +95,14 @@ public class UITimer : MonoBehaviour
     //Trigger подсчет очков конец игры
     void HandleTimerCompletion()
     {
-        Debug.Log("Time's up");
         if (_eventBus != null)
         {
             StopAllCoroutines();
             if (_textMeshProUGUI != null)
                 ChangeAlpha(_textMeshProUGUI, 0.0f);
+            if (_timer != null)
+                _timer.OnTimerComplete -= HandleTimerCompletion;
+            _eventBus.Timer.AddListener(ShowTimerUI);
         }
     }
 
@@ -87,6 +119,8 @@ public class UITimer : MonoBehaviour
                 yield return null;
             }
             ChangeAlpha(target, 1.0f);
+            _coroutine = null;
+            _isRunning = false;
         }
     }
 
@@ -94,7 +128,7 @@ public class UITimer : MonoBehaviour
     // Should be moved to an event-driven approach later.
     void Update()
     {
-        if (_textMeshProUGUI != null && _timer != null && _timer.IsRunning)
+        if (_textMeshProUGUI != null && _timer != null && _timer.IsRunning && !_timer.IsFinished)
         {
             float remainingTime = _timer.GetRemainingTime();
             var (min, sec) = NormilizeTime(remainingTime);
@@ -116,13 +150,12 @@ public class UITimer : MonoBehaviour
                 RemindAboutTimer(_textMeshProUGUI, _timer, 5f, Color.red);
             }
         }
+
     }
 
     private void OnDisable()
     {
-        _eventBus?.Timer.RemoveListener(ShowTimerUI);
-        if (_timer != null)
-            _timer.OnTimerComplete -= HandleTimerCompletion;
+        RemoveListeners();
     }
 
     private (int minutes, int seconds) NormilizeTime(float totalSeconds)

@@ -103,6 +103,7 @@ public class CharacterStats : ICharacterStats
     {
         return _movementSpeed;
     }
+
     public void SetCharacterSpeed(float updatedSpeed)
     {
         if (updatedSpeed < 0)

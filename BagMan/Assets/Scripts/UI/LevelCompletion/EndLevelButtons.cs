@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,40 +9,33 @@ public class EndLevelButtons : MonoBehaviour
 
     private EventBus _bus;
 
-    public event Action OnExitClickedd;
-    public event Action OnRestartCliked;
+
+    public bool TimeStopped { get; private set; }
+
 
     public void Initialize(EventBus bus)
     {
-        Debug.Log($"{this.gameObject.name}: Init");
+        TimeStopped = false;
         _bus = bus;
         if (_bus == null)
             Debug.LogError("EventBus is not init");
-
-        AddListeners();
     }
 
     public void OnRestartClick()
     {
         if (_btnRestart != null)
         {
-            OnRestartCliked?.Invoke();
-
-            //_bus?.TriggerRestartGame();
-
-
-            //save score
+            _bus?.TriggerRestartGame();
+            //Debug.Log($"{this}:OnRestartClicked");
         }
     }
-
-
 
     public void OnExitClick()
     {
         if (_btnExit != null)
         {
-            Debug.Log("OnExitClick");
-            OnExitClickedd?.Invoke();
+            //Debug.Log($"{this}: OnExitClick");
+            _bus.TriggerExitGame();
         }
     }
 
@@ -64,21 +56,4 @@ public class EndLevelButtons : MonoBehaviour
         }
     }
 
-    private void AddListeners()
-    {
-        //_bus?.GameRunTime.AddListener(OnTimePauseChanged);
-    }
-
-    private void RemoveListeners()
-    {
-        //_bus?.GameRunTime.RemoveListener(OnTimePauseChanged);
-    }
-
-    private void OnDisable()
-    {
-        if (_bus != null)
-        {
-            RemoveListeners();
-        }
-    }
 }

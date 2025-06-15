@@ -4,7 +4,7 @@ public class PlayerCartController : MonoBehaviour
 {
     [Header("Cart Attachment")]
     public Transform attachPoint;
-    public bool hasCartAttached = false;
+    public bool hasCartAttached;
 
     [Header("Cart Control")]
     public KeyCode detachAllKey = KeyCode.R;
@@ -16,7 +16,6 @@ public class PlayerCartController : MonoBehaviour
 
 
     [SerializeField, Range(0.1f, 5f)] private float _radius = 1.5f;
-    private bool _interactActive;
     private CircleCollider2D _interactArea;
     private FloatingTip _tip;
     private bool _isLogging;
@@ -24,12 +23,19 @@ public class PlayerCartController : MonoBehaviour
     private void Start()
     {
         // Create attachment point if not set
-        _attachedCarts = 0;
+        ResetData();
         InitializeAttachPoint();
         InitPopUpCollider();
         _tip = GetComponentInChildren<FloatingTip>();
         _isLogging = false;
     }
+
+    public void ResetData()
+    {
+        hasCartAttached = false;
+        _attachedCarts = 0;
+    }
+
 
     private void Update()
     {

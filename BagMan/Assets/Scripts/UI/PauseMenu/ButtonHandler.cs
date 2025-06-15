@@ -18,7 +18,7 @@ public class ButtonHandler : MonoBehaviour
 
     public void Initialize(EventBus bus)
     {
-        Debug.Log($"{this.gameObject.name}: Init");
+
         _bus = bus;
         if (_bus == null)
             Debug.LogError("EventBus is not init");
@@ -27,12 +27,20 @@ public class ButtonHandler : MonoBehaviour
         AddListeners();
     }
 
+    public void OnResumeClick()
+    {
+        if (_btnResume != null)
+        {
+            OnResumeClicked?.Invoke();
+            _bus?.TriggerResumeGame();
+        }
+    }
+
 
     public void OnExitClick()
     {
         if (_btnExit != null)
         {
-            Debug.Log("OnExitClick");
             OnExitClicked?.Invoke();
             _bus?.TriggerResumeGame();
             _bus?.TriggerExitGame();
@@ -59,7 +67,6 @@ public class ButtonHandler : MonoBehaviour
                 {
                     _btnResume = buttons.FirstOrDefault(b => b.name == "ButtonResume");
                     _btnExit = buttons.FirstOrDefault(b => b.name == "ButtonExit");
-
                 }
             }
         }
@@ -68,12 +75,12 @@ public class ButtonHandler : MonoBehaviour
 
     private void AddListeners()
     {
-        _bus?.GameRunTime.AddListener(OnTimePauseChanged);
+        _bus?.UIRunTime.AddListener(OnTimePauseChanged);
     }
 
     private void RemoveListeners()
     {
-        _bus?.GameRunTime.RemoveListener(OnTimePauseChanged);
+        _bus?.UIRunTime.RemoveListener(OnTimePauseChanged);
     }
 
     private void OnDisable()

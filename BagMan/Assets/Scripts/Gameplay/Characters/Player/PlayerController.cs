@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    public void UpdatePlayerSpeed(float updatedSpeed)
+    public void UpdateCurrentPlayerSpeed(float updatedSpeed)
     {
         if (updatedSpeed < 0)
             _speed = 0;

@@ -21,6 +21,7 @@ public class Timer
         _duration = duration;
         _spanTime = 0f;
         _isRunning = false;
+        _isFinished = false;
     }
 
     public void Start()
@@ -39,7 +40,6 @@ public class Timer
         if (!IsRunning || IsFinished)
             return;
         _spanTime += Time.deltaTime;
-
         if (_spanTime >= _duration)
         {
             _isFinished = true;
@@ -51,7 +51,14 @@ public class Timer
     public void Reset()
     {
         _spanTime = 0f;
-        _isRunning = true;
+        _isRunning = false;
+        _isFinished = false;
+    }
+
+    public void Restart()
+    {
+        Reset();
+        Start();
     }
 
     public float GetRemainingTime()

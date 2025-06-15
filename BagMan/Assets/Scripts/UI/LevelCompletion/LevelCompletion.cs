@@ -6,10 +6,6 @@ public class LevelCompletion
 
     public ulong Score => _score;
 
-    // int[] t = new[] { 1, 2, 3, 4, 5, 6, 7 };
-
-
-
     public LevelCompletion(GameManager gm)
     {
         if (gm != null)
@@ -31,13 +27,12 @@ public class LevelCompletion
 
     private void AddListeners()
     {
-        _eventBus.GameLevelComplete.AddListener(OnLevelCompleted);
+        _eventBus?.GameLevelComplete.AddListener(OnLevelCompleted);
     }
 
     private void RemoveListeners()
     {
-        if (_eventBus != null)
-            _eventBus.GameLevelComplete.AddListener(OnLevelCompleted);
+        _eventBus?.GameLevelComplete.AddListener(OnLevelCompleted);
     }
 
     private void OnLevelCompleted()

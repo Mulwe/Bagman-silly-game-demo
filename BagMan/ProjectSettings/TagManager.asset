@@ -12,6 +12,7 @@ TagManager:
   - UI_HUD_Property_ProgressBar
   - UI_HUD
   - Tips
+  - UI_EndLevel
   layers:
   - Default
   - TransparentFX

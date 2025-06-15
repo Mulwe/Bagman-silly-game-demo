@@ -71,6 +71,7 @@ public class GameEntryPoint
         //(true) для поиска включая скрытые объекты 
         var uiReference = _uiRoot.GetComponentInChildren<UI_Reference>(true);
         var uiHUD = _uiRoot.GetComponentInChildren<UI_StatsTracker>(true);
+        var uiEndLevelPopUp = _uiRoot.GetComponentInChildren<EndLevelStatsPopup>(true);
 
         Handlers handlers = new Handlers(_uiRoot);
 
@@ -84,8 +85,8 @@ public class GameEntryPoint
         _bus = new EventBus();
 
         // Внедряем зависимости. Null reference если не прокинуть зависимости.
-        sceneEntryPoint.Inject(uiReference, handlers, uiHUD,
-            playerController, playerEventHandler, gameplay, _bus);
+        sceneEntryPoint.Inject(uiReference, uiHUD, uiEndLevelPopUp, handlers,
+            playerController, gameplay, playerEventHandler, _bus);
 
 
 

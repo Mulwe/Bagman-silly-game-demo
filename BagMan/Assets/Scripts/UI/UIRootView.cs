@@ -8,10 +8,8 @@ public class UIRootView : MonoBehaviour
     [SerializeField] private GameObject _tipsScreen;
     [SerializeField] private GameObject _levelCompleteScreen;
 
-
     [Header("Main HUD:")]
     [SerializeField] private GameObject _playerHud;
-
 
     private float delay = 2f;
     // [SerializeField] private Gameobject _UIMenu;
@@ -21,9 +19,7 @@ public class UIRootView : MonoBehaviour
         HideLoadingScreen();
         HideTipsScreen();
         HideLevelCompletedScreen();
-        ShowLevelCompletedScreen();
     }
-
 
     public void ShowLoadingScreen()
     {

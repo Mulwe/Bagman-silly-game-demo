@@ -11,19 +11,20 @@ public class SpawnedObjects : MonoBehaviour
 
     [Header("The zone of spawn:")]
     [SerializeField] private Zone _spawnZone;
-    public List<GameObject> _listObjects;
+    public List<GameObject> listObjects;
 
     private bool _isSpawned = false;
-    public bool IsInit => _isSpawned;
 
     private PoolManager _poolManager;
     private Coroutine _coroutine;
+
     public PoolManager PoolManager => _poolManager;
+    public bool IsInit => _isSpawned;
 
 
     public List<GameObject> GetList()
     {
-        return this._listObjects;
+        return this.listObjects;
     }
 
     public void ChangeAmount(int newAmount)
@@ -42,28 +43,54 @@ public class SpawnedObjects : MonoBehaviour
         if (_spawnZone != null)
         {
             _spawnZone.Initialize();
-            _poolManager = new PoolManager(_listObjects);
+            _poolManager = new PoolManager(listObjects);
             if (_coroutine != null)
             {
                 StopCoroutine(_coroutine);
                 _coroutine = null;
             }
             _coroutine = StartCoroutine(PoolCleanupCoroutine(_poolManager));
-            SpawnInZone(_spawnZone);
-            _isSpawned = _listObjects != null;
+            _isSpawned = SpawnInZone(_spawnZone);
         }
     }
 
-    public void SpawnInZone(Zone s)
+    public void RestartSpawner()
+    {
+        Dispose();
+        Initialize();
+    }
+
+    public void Dispose()
+    {
+        if (_poolManager != null)
+            Clear();
+        if (listObjects != null)
+        {
+            if (listObjects.Count > 0)
+            {
+                foreach (GameObject obj in listObjects)
+                {
+                    UnityEngine.Object.Destroy(obj);
+                }
+                listObjects.Clear();
+                listObjects = null;
+                _isSpawned = false;
+            }
+        }
+    }
+
+
+    public bool SpawnInZone(Zone s)
     {
         //выключу колайдер прямо перед проверкой.  
         //Изза функции Physics2D.OverlapBox тригирится на любые колайдеры - видимые и невидимые. 
         if (_objPrefab != null)
         {
-            _listObjects = Spawner(_objPrefab, s, _amount);
+            listObjects = Spawner(_objPrefab, s, _amount);
+            return listObjects != null;
         }
-        else
-            Debug.Log("Prefab not found");
+        Debug.Log("Prefab not found");
+        return false;
     }
 
     private IEnumerator PoolCleanupCoroutine(PoolManager p)
@@ -78,7 +105,7 @@ public class SpawnedObjects : MonoBehaviour
         }
     }
 
-    List<GameObject> Spawner(GameObject prefab, Zone s, int count)
+    private List<GameObject> Spawner(GameObject prefab, Zone s, int count)
     {
         List<GameObject> objsList = null;
         if (prefab && count > 0)
@@ -102,6 +129,7 @@ public class SpawnedObjects : MonoBehaviour
             return (objsList);
         }
     }
+
 
     private GameObject SpawnCart(GameObject objRef, Vector3 spawnPoint)
     {
@@ -312,7 +340,6 @@ public class SpawnedObjects : MonoBehaviour
                 min.y < 1 && max.y > 0);
     }
 
-
     private void Start()
     {
         if (_spawnZone == null)
@@ -322,13 +349,20 @@ public class SpawnedObjects : MonoBehaviour
         }
     }
 
+    private void Clear()
+    {
+        if (_coroutine != null)
+        {
+            StopCoroutine(_coroutine);
+            _coroutine = null;
+        }
+        _poolManager?.DeleteMainQueueAfterDespose(true);
+        _poolManager?.Dispose();
+    }
 
     private void OnDestroy()
     {
-        // Debug.LogWarning($"{name} был уничтожен. Stack trace:\n{System.Environment.StackTrace}");
-        if (_coroutine != null)
-            StopCoroutine(_coroutine);
-        _poolManager?.DeleteMainQueueAfterDespose(true);
-        _poolManager?.Dispose();
+
+        Clear();
     }
 }

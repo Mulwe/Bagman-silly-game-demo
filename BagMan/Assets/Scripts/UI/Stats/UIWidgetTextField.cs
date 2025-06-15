@@ -100,7 +100,17 @@ public class UIWidgetTextField : MonoBehaviour
             unityEvent.RemoveListener(callback);
     }
 
-    private void OnPlayerCountChanged(float count)
+    private void ModifyUnityEvent(UnityEvent<ulong> unityEvent, UnityAction<ulong> callback, bool add)
+    {
+        if (unityEvent == null || callback == null) return;
+
+        if (add)
+            unityEvent.AddListener(callback);
+        else
+            unityEvent.RemoveListener(callback);
+    }
+
+    private void OnPlayerCountChanged(ulong count)
     {
         if (_childTextData != null)
         {

@@ -15,6 +15,7 @@ public class Gameplay : MonoBehaviour
     private bool _initialized = false;
     private bool _isStarted = false;
     private bool _haveListeners = false;
+
     public SpawnedObjects SpawnedObjects => _spawner;
     public GameManager GameManager => _gameManager;
     public bool IsInitialized => _initialized && _isStarted;
@@ -24,13 +25,16 @@ public class Gameplay : MonoBehaviour
     /// <summary>
     /// Level timer duration
     /// </summary>
-    private float _timeDuration = 30f;
+    private float _timeDuration = 60f * 3f;
+    private float _delay = 10f;
+
+    private int _goalCondition = 0;
 
     public void Run()
     {
         if (_initialized == true)
         {
-            StartGameplay();
+            StartGameplay(_delay);
         }
         else
             Debug.Log("Gameplay components are not init. GamePlay not started");
@@ -39,27 +43,39 @@ public class Gameplay : MonoBehaviour
     public void Initialize(GameManager gm)
     {
         _gameManager = gm;
-        if (gm == null)
+        if (gm == null || gm?.BtnHandlerMenu == null || gm?.PlayerController == null)
         {
-            Debug.Log($"{this}: gm is null");
-        }
-        if (gm?.BtnHandlerMenu == null || gm?.PlayerController == null)
             Debug.LogError("Gameplay: References Init error");
-        else
-            GameAndSpawnInitialization(gm);
+            return;
+        }
+
+        if (!_spawner.IsInit)
+            _spawner.Initialize();
+        if (_spawner.GetList() != null && gm != null)
+        {
+            _goalCondition = _spawner.GetList().Count;
+            gm.Init();
+            LevelTimer = new Timer(_timeDuration);
+            AddListeners();
+            PlayerInit(gm);
+            _isStarted = true;
+            _initialized = true;
+        }
+        _dropZoneController = GetComponentInChildren<DropZoneController>();
     }
 
-    public void StartGameplay()
+
+    public void StartGameplay(float delayTime)
     {
         if (_isStarted && _initialized && _gameManager != null)
         {
-            _gameManager.EventBus.Timer.AddListener(OnFirstPlayerScored);
-
-            StartCoroutine(WaitPlayersInteractions(LevelTimer, 10f));
+            _gameManager.EventBus?.Timer.AddListener(OnFirstPlayerScored);
+            StartCoroutine(WaitPlayersInteractions(LevelTimer, delayTime));
+            _gameManager.EventBus?.GameLevelComplete.AddListener(OnLevelComplete);
         }
     }
 
-    IEnumerator WaitPlayersInteractions(Timer timer, float seconds)
+    private IEnumerator WaitPlayersInteractions(Timer timer, float seconds)
     {
         //show tips for player. if no interactions start the timer
         //Trigger text ""
@@ -67,8 +83,7 @@ public class Gameplay : MonoBehaviour
 
         if (timer != null && !timer.IsRunning)
         {
-            //show tip Ч encourage player to action
-            _gameManager.EventBus.Timer.RemoveListener(OnFirstPlayerScored);
+            //show tip Ч encourage player to action           
             _gameManager.EventBus.TriggerTimerUI(timer);
             timer.Start();
         }
@@ -76,57 +91,88 @@ public class Gameplay : MonoBehaviour
             Debug.Log("Timer is still running");
     }
 
-    public void OnPlayerStatsChanged()
+    private void OnPlayerStatsChanged()
     {
         if (_gameManager != null)
         {
-            if (_dropZoneController != null)
-                _gameManager.EventBus.TriggerPlayerCountUpdateUI(_dropZoneController.Count);
             _gameManager.EventBus.TriggerPlayerStaminaUpdateUI();
             _gameManager.EventBus.TriggerPlayerSpeedUpdateUI();
         }
     }
 
-
     private void HandleLevelTimerFinished()
     {
-        _dropZoneController = GetComponentInChildren<DropZoneController>();
-        if (_dropZoneController != null)
-            Debug.Log($"Time out! Your Score is [{_dropZoneController.Count}]");
-        if (LevelTimer != null)
-            LevelTimer.Stop();
+        _gameManager?.EventBus?.TriggerGameLevelComplete();
     }
 
-    //Listener OnPlayerStatsChanged
-    private void GameAndSpawnInitialization(GameManager gm)
+    private void InitTimer(Timer timer)
     {
-        _spawner.Initialize();
-        if (_spawner.GetList() != null && gm != null)
-        {
-            gm.Init();
-            ChangeDefaultPlayerSpeed(_playerSpeed);
-
-            LevelTimer = new Timer(_timeDuration);
-
-            AddListeners();
-
-            _isStarted = true;
-            _initialized = true;
-        }
+        if (timer == null)
+            timer = new Timer(_timeDuration);
         else
-            Debug.Log($"{this}: failed in intialization!");
+            timer.Reset();
     }
 
-    private void ChangeDefaultPlayerSpeed(float newSpeed)
+    private void PrepareToRestart(GameManager gm)
     {
-        GameManager gm = _gameManager;
-        if (gm != null && gm.PlayerStats != null && gm.PlayerController)
+
+        if (_spawner != null)
         {
-            if (newSpeed > 0)
-            {
-                gm.PlayerStats.SetCharacterSpeed(newSpeed);
-                gm.PlayerController.UpdatePlayerSpeed(newSpeed);
-            }
+            _spawner.RestartSpawner();
+            _goalCondition = _spawner.GetList().Count;
+
+        }
+        InitTimer(LevelTimer);
+        AddListeners();
+        PlayerInit(gm);
+    }
+
+    //»грок загнал тележку сам
+    private void OnFirstPlayerScored(Timer timer)
+    {
+        if (LevelTimer != null && !LevelTimer.IsRunning)
+        {
+            StopAllCoroutines();
+            _gameManager.EventBus.Timer.RemoveListener(OnFirstPlayerScored);
+            LevelTimer.Start();
+            //Debug.Log("Timer trigered by cart");
+
+        }
+    }
+
+    //”ровень завершен
+    private void OnLevelComplete()
+    {
+        if (_gameManager != null)
+        {
+            _gameManager.EventBus?.Timer.RemoveListener(OnFirstPlayerScored);
+            _gameManager.EventBus?.GameLevelComplete.RemoveListener(OnLevelComplete);
+            RemoveListeners();
+            _gameManager.EventBus.GameRestart.AddListener(OnGameRestarted);
+        }
+    }
+
+    //”ровень перезапускают
+    private void OnGameRestarted()
+    {
+        if (_gameManager != null && _gameManager.EventBus != null)
+        {
+            _gameManager.EventBus.GameRestart.RemoveListener(OnGameRestarted);
+            PrepareToRestart(_gameManager);
+            _gameManager.EventBus.TriggerGameClearScore();
+            _gameManager.EventBus.TriggerHideLevelStats();
+            _delay = 1f;
+            StartGameplay(_delay);
+        }
+    }
+
+    private void OnGoalAchived()
+    {
+        //send extra setups
+        if (_goalCondition > 0)
+        {
+            _goalCondition = 0;
+            _gameManager.EventBus.TriggerGameLevelComplete();
         }
     }
 
@@ -135,8 +181,11 @@ public class Gameplay : MonoBehaviour
         GameManager gm = _gameManager;
         gm?.EventBus.PlayerStatsChanged.AddListener(OnPlayerStatsChanged);
         gm?.EventBus.GameCountScore.AddListener(OnGetScore);
-
-        LevelTimer.OnTimerComplete += HandleLevelTimerFinished;
+        gm?.EventBus.GameLevelComplete.AddListener(OnLevelComplete);
+        gm?.EventBus.GameLevelGoalComplete.AddListener(OnGoalAchived);
+        if (LevelTimer != null)
+            LevelTimer.OnTimerComplete += HandleLevelTimerFinished;
+        //gm?.EventBus.PlayerDefaultSpeed.AddListener();
         _haveListeners = true;
     }
 
@@ -144,14 +193,31 @@ public class Gameplay : MonoBehaviour
     {
         if (_haveListeners && _gameManager != null)
         {
-            _gameManager.EventBus.PlayerStatsChanged.RemoveListener(OnPlayerStatsChanged);
-            LevelTimer.OnTimerComplete -= HandleLevelTimerFinished;
+            _gameManager.EventBus?.PlayerStatsChanged.RemoveListener(OnPlayerStatsChanged);
+            _gameManager.EventBus?.GameCountScore.RemoveListener(OnGetScore);
+            _gameManager.EventBus?.GameLevelComplete.RemoveListener(OnLevelComplete);
+            _gameManager.EventBus?.GameLevelGoalComplete.RemoveListener(OnGoalAchived);
+            _gameManager.EventBus?.GameRestart.RemoveListener(OnGameRestarted);
+            if (LevelTimer != null)
+                LevelTimer.OnTimerComplete -= HandleLevelTimerFinished;
+            _haveListeners = false;
+            //_gameManager.EventBus?.PlayerDefaultSpeed.RemoveListener();
         }
+    }
+
+    private void PlayerInit(GameManager gm)
+    {
+        gm.ClearPlayerData(gm.EventBus, _playerSpeed);
+        gm.InitPlayerStats(100, 200, 0.5f);
     }
 
     private void OnDisable()
     {
         RemoveListeners();
+        if (_spawner != null)
+        {
+            _spawner.Dispose();
+        }
     }
 
     private void OnValidate()
@@ -162,36 +228,22 @@ public class Gameplay : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (LevelTimer != null && LevelTimer.GetRemainingTime() > 0)
-        {
+        if (LevelTimer != null && LevelTimer.IsRunning && LevelTimer.GetRemainingTime() > 0)
             LevelTimer.Update();
-        }
-    }
-
-
-    private void Update()
-    {
-
     }
 
     private void OnGetScore(ulong score)
     {
         //update score
-        score = _dropZoneController.Count;
-        _gameManager?.EventBus?.TriggerGameCountScore(score);
-    }
-
-    private void OnFirstPlayerScored(Timer timer)
-    {
-        if (LevelTimer != null && !LevelTimer.IsRunning)
+        if (_dropZoneController == null)
+            _dropZoneController = GetComponentInChildren<DropZoneController>();
+        if (_dropZoneController != null)
+            score = _dropZoneController.Count;
+        int intScore = int.Parse(score.ToString());
+        if (_goalCondition > 0 && intScore >= _goalCondition)
         {
-            _gameManager.EventBus.Timer.RemoveListener(OnFirstPlayerScored);
-            LevelTimer.Start();
-            _gameManager?.EventBus?.TriggerTimer(LevelTimer);
-            Debug.Log("Timer trigered by cart");
+            _gameManager?.EventBus?.TriggerGameLevelGoalComplete();
         }
     }
-
-
 }
 

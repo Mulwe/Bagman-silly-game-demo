@@ -18,8 +18,8 @@ public class PoolManager
     {
         _pool = new List<GameObject>();
         _cleaned = true;
-        if (activeObjects != null)
-            _mainQueue = activeObjects;
+
+        _mainQueue = activeObjects;
         _cleanAll = false;
     }
 
@@ -85,8 +85,6 @@ public class PoolManager
         }
         if (lst.Count > 0) lst.Clear();
     }
-
-
 
     public void Dispose()
     {

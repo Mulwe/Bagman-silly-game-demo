@@ -19,6 +19,7 @@ public class PlayerEventHandler : MonoBehaviour
     private float regenTimer = 0f;
 
     private bool _isInit = false;
+    private bool _haveListeners = false;
 
     public void Initialize(GameManager gm)
     {
@@ -29,10 +30,10 @@ public class PlayerEventHandler : MonoBehaviour
         if (_control != null && _playerStats != null
             && _eventBus != null && _isInit == false)
         {
-            _control.UpdatePlayerSpeed(_playerStats.GetCharacterSpeed());
+            _control.UpdateCurrentPlayerSpeed(_playerStats.GetCharacterSpeed());
             _playerCartData = transform.GetComponent<PlayerCartController>();
             _defaultSpeed = _playerStats.GetCharacterSpeed();
-
+            AddListeners();
             _isInit = true;
             _canRepeat = true;
         }
@@ -49,13 +50,21 @@ public class PlayerEventHandler : MonoBehaviour
         //запуск условий
     }
 
+    public void EnableListeners() => AddListeners();
+    public void DisableListeners() => RemoveListeners();
+
+    private void OnResetPlayerData()
+    {
+        if (_playerCartData)
+            _playerCartData.ResetData();
+    }
 
     private void UpdatePlayerSpeed(float newSpeed)
     {
         if (_playerStats == null && _control == null) return;
 
         _playerStats.SetCharacterSpeed(newSpeed);
-        _control.UpdatePlayerSpeed(newSpeed);
+        _control.UpdateCurrentPlayerSpeed(newSpeed);
     }
 
     private void SpeedChangeCondition()
@@ -109,8 +118,37 @@ public class PlayerEventHandler : MonoBehaviour
             while (_isInit)
             {
                 RefreshUI();
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(0.2f);
             }
+        }
+    }
+    private void AddListeners()
+    {
+        if (_eventBus != null && _haveListeners == false)
+        {
+            _eventBus.ResetPlayerData.AddListener(OnResetPlayerData);
+            _eventBus.PlayerDefaultSpeed.AddListener(OnPlayerDefaultSpeedChanged);
+            _haveListeners = true;
+        }
+    }
+
+    private void RemoveListeners()
+    {
+        if (_eventBus != null && _haveListeners == true)
+        {
+            _eventBus.ResetPlayerData.RemoveListener(OnResetPlayerData);
+            _eventBus.PlayerDefaultSpeed.RemoveListener(OnPlayerDefaultSpeedChanged);
+            _haveListeners = false;
+        }
+    }
+
+    private void OnPlayerDefaultSpeedChanged(float defaultSpeed)
+    {
+        if (_playerStats != null && _control != null)
+        {
+            _playerStats.SetCharacterSpeed(defaultSpeed);
+            _defaultSpeed = _playerStats.GetCharacterSpeed();
+            _control?.UpdateCurrentPlayerSpeed(_defaultSpeed);
         }
     }
 
@@ -118,7 +156,14 @@ public class PlayerEventHandler : MonoBehaviour
     {
         if (_isInit)
         {
-            //отписка
+            StopAllCoroutines();
+            _isInit = false;
+        }
+    }
+    private void OnEnable()
+    {
+        if (_isInit)
+        {
             StopAllCoroutines();
             _isInit = false;
         }
@@ -160,7 +205,6 @@ public class PlayerEventHandler : MonoBehaviour
 
     private void OnDestroy()
     {
-
-        //remove listeners
+        RemoveListeners();
     }
 }

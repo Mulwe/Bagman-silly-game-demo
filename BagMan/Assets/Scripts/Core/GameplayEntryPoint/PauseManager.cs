@@ -14,16 +14,16 @@ public class PauseManager
 
     public void RemoveListeners()
     {
-        _eventBus.GameRunTime.RemoveListener(TogglePause);
-        _eventBus.GamePause.RemoveListener(PauseGame);
-        _eventBus.GameResume.RemoveListener(ResumeGame);
+        _eventBus.UIRunTime.RemoveListener(TogglePause);
+        _eventBus.UIPause.RemoveListener(PauseGame);
+        _eventBus.UIResume.RemoveListener(ResumeGame);
     }
 
     private void AddListeners()
     {
-        _eventBus.GameRunTime.AddListener(TogglePause);
-        _eventBus.GamePause.AddListener(PauseGame);
-        _eventBus.GameResume.AddListener(ResumeGame);
+        _eventBus.UIRunTime.AddListener(TogglePause);
+        _eventBus.UIPause.AddListener(PauseGame);
+        _eventBus.UIResume.AddListener(ResumeGame);
     }
 
     /// <summary>
@@ -40,9 +40,13 @@ public class PauseManager
     public void TogglePauseWithUI(bool status)
     {
         if (status)
+        {
             PauseGame();
+        }
         else
+        {
             ResumeGame();
+        }
     }
 
     public bool isGamePaused()
@@ -69,6 +73,7 @@ public class PauseManager
         Time.timeScale = 0f;
         _eventBus.TriggerUIShowPause(_paused);
     }
+
 
 
 }
