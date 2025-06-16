@@ -589,6 +589,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _spawner: {fileID: 752198100}
   _playerSpeed: 8
+  _collectedSoundClip:
+  - {fileID: 8300000, guid: 4d72ec2992259af498cfb8ec569f8817, type: 3}
+  - {fileID: 8300000, guid: 215aaaa6a41611a4cbc87ee14d4ccc8c, type: 3}
+  - {fileID: 8300000, guid: 7c60212893ebe7043a1cf2bab0fadc47, type: 3}
+  _timeDuration: 120
+  _delay: 10
 --- !u!114 &752198100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -603,7 +609,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _objPrefab: {fileID: 6860246072868031059, guid: e9054f67a8906904297aef249649a046,
     type: 3}
-  _amount: 1
+  _amount: 10
   _spawnZone: {fileID: 4464816732817902809}
   listObjects: []
 --- !u!1 &914699618

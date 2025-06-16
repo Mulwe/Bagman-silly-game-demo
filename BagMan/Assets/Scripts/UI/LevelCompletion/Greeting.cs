@@ -1,6 +1,8 @@
 using TMPro;
 using UnityEngine;
 
+
+// Add effect when active
 public class Greeting : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _textMeshPro;

@@ -9,6 +9,10 @@ public class Gameplay : MonoBehaviour
     [Range(1, 50)]
     [SerializeField] private float _playerSpeed = 8f;
 
+    //[SerializeField] private AudioClip _collectedCart;
+    [SerializeField] private AudioClip[] _collectedSoundClip;
+
+
     private GameManager _gameManager;
     private DropZoneController _dropZoneController;
 
@@ -20,15 +24,16 @@ public class Gameplay : MonoBehaviour
     public GameManager GameManager => _gameManager;
     public bool IsInitialized => _initialized && _isStarted;
 
+
     public Timer LevelTimer;
 
-    /// <summary>
-    /// Level timer duration
-    /// </summary>
-    private float _timeDuration = 5f;
-    private float _delay = 10f;
+    [Header("Level Timer:")]
+    [SerializeField] private float _timeDuration = 5f;
+    [Header("Pre-trigger delay of inactivity:")]
+    [SerializeField] private float _delay = 10f;
 
     private int _goalCondition = 0;
+
 
     public void Run()
     {
@@ -235,6 +240,10 @@ public class Gameplay : MonoBehaviour
     private void OnGetScore(ulong score)
     {
         //update score
+        //SoundFXManager.Instance.PlaySoundFXClip(_collectedCart, transform, 1f);
+        SoundFXManager.Instance.PlayRandomSoundFXClip(_collectedSoundClip, transform, 1f);
+
+
         if (_dropZoneController == null)
             _dropZoneController = GetComponentInChildren<DropZoneController>();
         if (_dropZoneController != null)

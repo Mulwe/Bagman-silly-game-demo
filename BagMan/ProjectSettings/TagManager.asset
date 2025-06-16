@@ -13,6 +13,7 @@ TagManager:
   - UI_HUD
   - Tips
   - UI_EndLevel
+  - Sound
   layers:
   - Default
   - TransparentFX
