@@ -76,6 +76,7 @@ public class GameplayEntryPoint : MonoBehaviour
     {
         // присваивание со сцены если объект уже инициализирован. ищем локально а не по всей сцене
         _sceneRootBinder = GetIfNotInit<SceneRootBinder>();
+        Application.targetFrameRate = 60;
     }
 
     private void RegisterComponents()

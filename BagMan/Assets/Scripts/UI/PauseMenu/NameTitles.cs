@@ -11,7 +11,7 @@ public class NameTitles : MonoBehaviour
     private void Awake()
     {
         _text = gameObject.GetComponent<TextMeshProUGUI>();
-        if (_text != null)
+        if (_text != null && _autoNaming)
         {
             string s = transform.parent.name;
             _text.text = s.Substring(0, s.IndexOf(' '));
