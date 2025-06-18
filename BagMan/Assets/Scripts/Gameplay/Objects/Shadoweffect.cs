@@ -32,9 +32,8 @@ public class Shadoweffect : MonoBehaviour
             sr.color = new Color(0f, 0f, 0f, Shadow.ShadowIntensity);
 
             sr.sortingLayerName = renderer.sortingLayerName;
-            sr.sortingOrder = renderer.sortingOrder - 1;
-
-
+            // sr.sortingOrder = renderer.sortingOrder - 1;
+            sr.sortingOrder = 0;
         }
     }
 
