@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0013509a6c4b74143b493be138d5a79b, type: 3}
+  m_Name: ShadowSettings_Player
+  m_EditorClassIdentifier: 
+  _shadowSprite: {fileID: 21300000, guid: 40b767c609df6a543b39eae4c7ee7710, type: 3}
+  _material: {fileID: 2100000, guid: 84b9b6b5185ee7747a35edf431086814, type: 2}
+  Offset: {x: 0, y: -0.9, z: 0}
+  Width: 0.5
+  Height: 0.1
+  ShadowIntensity: 0.7

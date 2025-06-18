@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a0f2ee442aa181246a73de0dc19115c7
+guid: 40b767c609df6a543b39eae4c7ee7710
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2772094700259218761
-    second: ChatGPT Image Jun 16, 2025, 02_54_41 AM_0
+      213: -2413806693520163455
+    second: Circle
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -46,9 +46,9 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -56,7 +56,7 @@ TextureImporter:
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationDetail: -1
+  spriteTessellationDetail: 0
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -68,14 +68,14 @@ TextureImporter:
   ignorePngGamma: 0
   applyGammaDecoding: 0
   swizzle: 50462976
-  cookieLightType: 0
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -126,33 +126,97 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ChatGPT Image Jun 16, 2025, 02_54_41 AM_0
+      name: Circle
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1024
-        height: 1024
+        width: 256
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
+      outline:
+      - - {x: 33, y: 128}
+        - {x: -33, y: 128}
+        - {x: -95, y: 95}
+        - {x: -128, y: 33}
+        - {x: -128, y: -33}
+        - {x: -95, y: -95}
+        - {x: -33, y: -128}
+        - {x: 33, y: -128}
+        - {x: 95, y: -95}
+        - {x: 128, y: -33}
+        - {x: 128, y: 33}
+        - {x: 95, y: 95}
+      physicsShape:
+      - - {x: 0, y: 128}
+        - {x: -39, y: 121}
+        - {x: -75, y: 103}
+        - {x: -103, y: 75}
+        - {x: -121, y: 39}
+        - {x: -128, y: 0}
+        - {x: -121, y: -39}
+        - {x: -103, y: -75}
+        - {x: -75, y: -103}
+        - {x: -39, y: -121}
+        - {x: 0, y: -128}
+        - {x: 39, y: -121}
+        - {x: 75, y: -103}
+        - {x: 103, y: -75}
+        - {x: 121, y: -39}
+        - {x: 128, y: 0}
+        - {x: 121, y: 39}
+        - {x: 103, y: 75}
+        - {x: 75, y: 103}
+        - {x: 39, y: 121}
+      tessellationDetail: 0
       bones: []
-      spriteID: 94591b45175787620800000000000000
-      internalID: 2772094700259218761
+      spriteID: 18d3544e99f608ed0800000000000000
+      internalID: -2413806693520163455
       vertices: []
       indices: 
       edges: []
       weights: []
-    outline: []
+    outline:
+    - - {x: 33, y: 128}
+      - {x: -33, y: 128}
+      - {x: -95, y: 95}
+      - {x: -128, y: 33}
+      - {x: -128, y: -33}
+      - {x: -95, y: -95}
+      - {x: -33, y: -128}
+      - {x: 33, y: -128}
+      - {x: 95, y: -95}
+      - {x: 128, y: -33}
+      - {x: 128, y: 33}
+      - {x: 95, y: 95}
     customData: 
-    physicsShape: []
+    physicsShape:
+    - - {x: 0, y: 128}
+      - {x: -39, y: 121}
+      - {x: -75, y: 103}
+      - {x: -103, y: 75}
+      - {x: -121, y: 39}
+      - {x: -128, y: 0}
+      - {x: -121, y: -39}
+      - {x: -103, y: -75}
+      - {x: -75, y: -103}
+      - {x: -39, y: -121}
+      - {x: 0, y: -128}
+      - {x: 39, y: -121}
+      - {x: 75, y: -103}
+      - {x: 103, y: -75}
+      - {x: 121, y: -39}
+      - {x: 128, y: 0}
+      - {x: 121, y: 39}
+      - {x: 103, y: 75}
+      - {x: 75, y: 103}
+      - {x: 39, y: 121}
     bones: []
-    spriteID: 
-    internalID: 0
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 1537655665
     vertices: []
     indices: 
     edges: []
@@ -161,7 +225,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ChatGPT Image Jun 16, 2025, 02_54_41 AM_0: 2772094700259218761
+      Circle: -2413806693520163455
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

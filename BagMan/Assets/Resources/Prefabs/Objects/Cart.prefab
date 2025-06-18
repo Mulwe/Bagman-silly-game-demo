@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1653892114181360614}
   - component: {fileID: 7614622499869864369}
   - component: {fileID: -4893174643271624000}
+  - component: {fileID: -1635115354801492285}
   m_Layer: 11
   m_Name: Cart
   m_TagString: cart
@@ -30,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 6860246072868031059}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.3, y: -2.93, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -200,3 +201,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseSortingOrder: 10
   viewDistance: 3
+--- !u!114 &-1635115354801492285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6860246072868031059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9df083163dd6774984ed4bc2c685fdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Shadow: {fileID: 11400000, guid: 0233ae51a76f73f45bd1ea0491f17b73, type: 2}
