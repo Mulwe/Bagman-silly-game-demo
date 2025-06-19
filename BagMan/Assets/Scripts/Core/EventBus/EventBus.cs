@@ -7,6 +7,7 @@ using UnityEngine.Events;
 //
 public class EventBus
 {
+
     public UnityEvent<bool> UI_Menu { get; } = new();
     public UnityEvent UI_GameOver { get; } = new UnityEvent();
     public UnityEvent<bool> PlayerControl { get; } = new();
@@ -37,10 +38,42 @@ public class EventBus
 
 
     public UnityEvent GameExit { get; } = new UnityEvent();
+    public UnityEvent<float> GameRestartStopPlayer { get; } = new();
     public UnityEvent GameRestart { get; } = new();
     public UnityEvent HideLevelStats { get; } = new();
     public UnityEvent ShowLevelStats { get; } = new();
     // public UnityEvent GameStartLevel { get; } = new();
+
+    public UnityEvent<bool> Sound { get; } = new();
+    public UnityEvent<bool> SoundBackground { get; } = new();
+    public UnityEvent<bool> SoundFx { get; } = new();
+
+    public void TriggerSoundOn() => Sound.Invoke(true);
+    public void TriggerSoundOff() => Sound.Invoke(false);
+
+    /// <summary> 
+    /// True = On, False = Off
+    /// </summary>
+    /// <param name="status"></param>
+    public void TriggerSoundToogle(bool status) => Sound.Invoke(status);
+
+    public void TriggerSoundBackgroundOn() => SoundBackground.Invoke(true);
+    public void TriggerSoundBackgroundOff() => SoundBackground.Invoke(false);
+
+    /// <summary> 
+    /// True = On, False = Off
+    /// </summary>
+    /// <param name="status"></param>
+    public void TriggerSoundBackgroundToogle(bool status) => SoundBackground.Invoke(status);
+
+    public void TriggerSoundFxOn() => SoundFx.Invoke(true);
+    public void TriggerSoundFxOff() => SoundFx.Invoke(false);
+
+    /// <summary> 
+    /// True = On, False = Off
+    /// </summary>
+    /// <param name="status"></param>
+    public void TriggerSoundFxToogle(bool status) => SoundFx.Invoke(status);
 
 
     public void TriggerPlayerDefaultSpeed(float newSpeed)
@@ -53,6 +86,8 @@ public class EventBus
 
     public void TriggerShowLevelStats()
         => ShowLevelStats.Invoke();
+
+
 
     public void TriggerRestartGame()
         => GameRestart.Invoke();

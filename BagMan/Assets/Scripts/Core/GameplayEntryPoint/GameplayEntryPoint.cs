@@ -16,13 +16,14 @@ public class GameplayEntryPoint : MonoBehaviour
     private Gameplay _gameplay;
     private EventBus _bus;
     private PlayerEventHandler _playerEventHandler;
+    private SoundEventHandler _soundEventHandler;
 
 
 
     public void Inject(UI_Reference uiReference, UI_StatsTracker ui_StatsTracker,
                         EndLevelStatsPopup uiEndLevel, Handlers buttonHandlers,
                         PlayerController playerController, Gameplay gameplay,
-                        PlayerEventHandler playerEventHandler, EventBus bus)
+                        PlayerEventHandler playerEventHandler, EventBus bus, SoundEventHandler soundEvent)
     {
         this._bus = bus;
         this._gameplay = gameplay;
@@ -32,8 +33,9 @@ public class GameplayEntryPoint : MonoBehaviour
         this._playerController = playerController;
         this._UI_StatsTracker = ui_StatsTracker;
         this._playerEventHandler = playerEventHandler;
-        _gm = new GameManager(_uiReference, buttonHandlers, _UI_StatsTracker,
-            _playerController, _bus, _gameplay, _playerEventHandler, uiEndLevel);
+        this._soundEventHandler = soundEvent;
+        _gm = new GameManager(_uiReference, _buttonHandlers, _UI_StatsTracker,
+            _playerController, _bus, _gameplay, _playerEventHandler, _endLevelPopUp, _soundEventHandler);
     }
 
     public void Run()
@@ -90,6 +92,7 @@ public class GameplayEntryPoint : MonoBehaviour
         _sceneRootBinder.Register<UI_StatsTracker>(_gm.UI_StatsTracker);
         _sceneRootBinder.Register<PlayerEventHandler>(_gm.PlayerEventHandler);
         _sceneRootBinder.Register<Gameplay>(_gm.GamePlay);
+        _sceneRootBinder.Register<SoundEventHandler>(_gm.SoundHandler);
 
         // Можно также зарегистрировать сервисы и другие компоненты
         _sceneRootBinder.Register<GameplayEntryPoint>(this);
@@ -106,6 +109,7 @@ public class GameplayEntryPoint : MonoBehaviour
         _sceneRootBinder.InjectDependencies(_gm.UI_StatsTracker);
         _sceneRootBinder.InjectDependencies(_gm.PlayerEventHandler);
         _sceneRootBinder.InjectDependencies(_gm.GamePlay);
+        _sceneRootBinder.InjectDependencies(_gm.SoundHandler);
     }
 
     private void InitializeComponents()
@@ -118,27 +122,21 @@ public class GameplayEntryPoint : MonoBehaviour
         _playerController.Initialize(_bus);
         _UI_StatsTracker.Initialize(_gm);
         _gameplay.Initialize(_gm);
+        _soundEventHandler.Initialize(_bus);
         _playerEventHandler.Initialize(_gm);
     }
 
     private void RunComponents()
     {
         // Запуск компонентов в правильном порядке
-        //_uiroot
         _playerController?.Run();
         _gameplay?.Run();
         _playerEventHandler?.Run();
-
+        _soundEventHandler?.Run();
     }
-
-
-
-
-
     public void OnDisable()
     {
-        if (_gm != null)
-            _gm.EventBus.GameExit.RemoveListener(OnCloseApplication);
+        _gm?.EventBus.GameExit.RemoveListener(OnCloseApplication);
     }
 }
 

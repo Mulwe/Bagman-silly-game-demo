@@ -16,6 +16,8 @@ public class GameManager
     public UI_StatsTracker UI_StatsTracker { get; private set; }
     public EventBus EventBus { get; private set; }
     public Gameplay GamePlay { get; private set; }
+    public SoundEventHandler SoundHandler { get; private set; }
+
 
     private bool _isCreated = false;
 
@@ -27,7 +29,7 @@ public class GameManager
 
     public GameManager(UI_Reference ui, Handlers btnHandlers, UI_StatsTracker uI_Stats,
         PlayerController playerController, EventBus eventBus, Gameplay gameplay,
-        PlayerEventHandler pEventHandler, EndLevelStatsPopup endLevelPopUp)
+        PlayerEventHandler pEventHandler, EndLevelStatsPopup endLevelPopUp, SoundEventHandler soundEventHandler)
     {
         UI_Reference = ui;
         Handlers = btnHandlers;
@@ -39,6 +41,7 @@ public class GameManager
         UI_StatsTracker = uI_Stats;
         PlayerEventHandler = pEventHandler;
         EndLevelPopUp = endLevelPopUp;
+        SoundHandler = soundEventHandler;
     }
 
     public void Init()

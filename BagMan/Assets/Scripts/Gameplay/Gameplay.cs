@@ -7,7 +7,7 @@ public class Gameplay : MonoBehaviour
     [Header("Spawner — SpawnObjects class:")]
     [SerializeField] private SpawnedObjects _spawner;
     [Range(1, 50)]
-    [SerializeField] private float _playerSpeed = 8f;
+    [SerializeField] private readonly float _playerSpeed = 8f;
 
     //[SerializeField] private AudioClip _collectedCart;
     [SerializeField] private AudioClip[] _collectedSoundClip;
@@ -141,7 +141,6 @@ public class Gameplay : MonoBehaviour
             _gameManager.EventBus.Timer.RemoveListener(OnFirstPlayerScored);
             LevelTimer.Start();
             //Debug.Log("Timer trigered by cart");
-
         }
     }
 
@@ -150,10 +149,13 @@ public class Gameplay : MonoBehaviour
     {
         if (_gameManager != null)
         {
+            _gameManager.EventBus?.TriggerSoundBackgroundToogle(false);
+
             _gameManager.EventBus?.Timer.RemoveListener(OnFirstPlayerScored);
             _gameManager.EventBus?.GameLevelComplete.RemoveListener(OnLevelComplete);
             RemoveListeners();
             _gameManager.EventBus.GameRestart.AddListener(OnGameRestarted);
+            _gameManager.PlayerController.UpdateCurrentPlayerSpeed(0f);
         }
     }
 
@@ -167,6 +169,8 @@ public class Gameplay : MonoBehaviour
             _gameManager.EventBus.TriggerGameClearScore();
             _gameManager.EventBus.TriggerHideLevelStats();
             _delay = 1f;
+            _gameManager.EventBus?.TriggerSoundBackgroundToogle(true);
+            _gameManager.PlayerController.UpdateCurrentPlayerSpeed(_playerSpeed);
             StartGameplay(_delay);
         }
     }

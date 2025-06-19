@@ -81,14 +81,13 @@ public class GameEntryPoint
         var playerController = Object.FindFirstObjectByType<PlayerController>();
         var gameplay = Object.FindFirstObjectByType<Gameplay>();
         var playerEventHandler = Object.FindFirstObjectByType<PlayerEventHandler>();
+        var soundEvent = Object.FindFirstObjectByType<SoundEventHandler>();
 
         _bus = new EventBus();
 
         // Внедряем зависимости. Null reference если не прокинуть зависимости.
         sceneEntryPoint.Inject(uiReference, uiHUD, uiEndLevelPopUp, handlers,
-            playerController, gameplay, playerEventHandler, _bus);
-
-
+            playerController, gameplay, playerEventHandler, _bus, soundEvent);
 
         _uiRoot.HideLoadingScreen();
         //_uiRoot.ShowTipsScreen();
