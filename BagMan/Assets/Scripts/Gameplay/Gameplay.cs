@@ -8,7 +8,7 @@ public class Gameplay : MonoBehaviour
     [SerializeField] private SpawnedObjects _spawner;
     [Range(1, 50)]
     [SerializeField] private readonly float _playerSpeed = 8f;
-    [SerializeField] private Tutorial _tutor;
+    [SerializeField] private Tutorial _tutorial;
 
     //[SerializeField] private AudioClip _collectedCart;
     [SerializeField] private AudioClip[] _collectedSoundClip;
@@ -28,7 +28,7 @@ public class Gameplay : MonoBehaviour
     [Header("Level Timer:")]
     [SerializeField] private float _timeDuration = 5f;
     [Header("Pre-trigger delay of inactivity:")]
-    [SerializeField] private float _delay = 100f;
+    [SerializeField] private float _delay = 10f;
 
     private int _goalCondition = 0;
 
@@ -36,9 +36,9 @@ public class Gameplay : MonoBehaviour
     {
         if (_initialized == true)
         {
-            _gameManager.EventBus.OutlineDropzone.Invoke(true, 3f);
-            _tutor.StartTutorial();
-            //StartGameplay(_delay);
+            _tutorial.StartTutorial();
+
+
 
         }
         else
@@ -54,29 +54,46 @@ public class Gameplay : MonoBehaviour
             return;
         }
 
-        if (_tutor == null)
-            _tutor = GetComponent<Tutorial>();
+
+        _dropZoneController = GetComponentInChildren<DropZoneController>();
+        InitTutorial();
+
         if (!_spawner.IsInit)
             _spawner.Initialize();
+
         if (_spawner.GetList() != null && gm != null)
         {
             _goalCondition = _spawner.GetList().Count;
             gm.Init();
             LevelTimer = new Timer(_timeDuration);
-            AddListeners();
             PlayerInit(gm);
+            AddListeners();
             _isStarted = true;
             _initialized = true;
         }
-        _dropZoneController = GetComponentInChildren<DropZoneController>();
     }
 
+    public void InitTutorial()
+    {
+        if (_tutorial == null)
+        {
+            _tutorial = GetComponent<Tutorial>();
+            _tutorial.SetDropZoneController(_dropZoneController);
+            _tutorial.TutorialFinished += OnTutorialFinished;
+            _gameManager.EventBus?.Timer.AddListener(OnFirstPlayerScored);
+        }
+    }
+
+    private void OnTutorialFinished()
+    {
+        StartGameplay(_delay);
+        _tutorial.TutorialFinished -= OnTutorialFinished;
+    }
 
     public void StartGameplay(float delayTime)
     {
         if (_isStarted && _initialized && _gameManager != null)
         {
-            _gameManager.EventBus?.Timer.AddListener(OnFirstPlayerScored);
             StartCoroutine(WaitPlayersInteractions(LevelTimer, delayTime));
             _gameManager.EventBus?.GameLevelComplete.AddListener(OnLevelComplete);
         }
@@ -130,7 +147,6 @@ public class Gameplay : MonoBehaviour
         {
             _spawner.RestartSpawner();
             _goalCondition = _spawner.GetList().Count;
-
         }
         InitTimer(LevelTimer);
         AddListeners();
@@ -140,6 +156,16 @@ public class Gameplay : MonoBehaviour
     //Игрок загнал тележку сам
     private void OnFirstPlayerScored(Timer timer)
     {
+
+        if (_tutorial != null && _tutorial.IsFinished == false)
+        {
+            Debug.Log("Игрок начала раньше туториала");
+            OnTutorialFinished();
+            _tutorial.InterruptTutorial();
+            _tutorial.enabled = false;
+
+        }
+
         if (LevelTimer != null && !LevelTimer.IsRunning)
         {
             StopAllCoroutines();
@@ -200,7 +226,7 @@ public class Gameplay : MonoBehaviour
         gm?.EventBus.GameLevelGoalComplete.AddListener(OnGoalAchived);
         if (LevelTimer != null)
             LevelTimer.OnTimerComplete += HandleLevelTimerFinished;
-        //gm?.EventBus.PlayerDefaultSpeed.AddListener();
+        gm?.EventBus.TutorialFinished.AddListener(OnTutorialFinished);
         _haveListeners = true;
     }
 
@@ -213,10 +239,10 @@ public class Gameplay : MonoBehaviour
             _gameManager.EventBus?.GameLevelComplete.RemoveListener(OnLevelComplete);
             _gameManager.EventBus?.GameLevelGoalComplete.RemoveListener(OnGoalAchived);
             _gameManager.EventBus?.GameRestart.RemoveListener(OnGameRestarted);
+            _gameManager.EventBus?.TutorialFinished.RemoveListener(OnTutorialFinished);
             if (LevelTimer != null)
                 LevelTimer.OnTimerComplete -= HandleLevelTimerFinished;
             _haveListeners = false;
-            //_gameManager.EventBus?.PlayerDefaultSpeed.RemoveListener();
         }
     }
 
@@ -252,7 +278,6 @@ public class Gameplay : MonoBehaviour
         //update score
         //SoundFXManager.Instance.PlaySoundFXClip(_collectedCart, transform, 1f);
         SoundFXManager.Instance.PlayRandomSoundFXClip(_collectedSoundClip, transform, 1f);
-
 
         if (_dropZoneController == null)
             _dropZoneController = GetComponentInChildren<DropZoneController>();

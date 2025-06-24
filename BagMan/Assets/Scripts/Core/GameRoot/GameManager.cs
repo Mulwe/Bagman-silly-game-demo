@@ -18,7 +18,6 @@ public class GameManager
     public Gameplay GamePlay { get; private set; }
     public SoundEventHandler SoundHandler { get; private set; }
 
-
     private bool _isCreated = false;
 
 

@@ -21,7 +21,6 @@ public class SoundEventHandler : MonoBehaviour
         {
             _bus = evntBus;
             AddListeners();
-            Debug.Log($"{this} listeners on");
         }
     }
 

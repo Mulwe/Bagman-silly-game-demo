@@ -96,7 +96,7 @@ public class EndLevelStatsPopup : MonoBehaviour
 
     private void OnGoalAchieved()
     {
-        Debug.Log($"{this}: OnGoalAchieved()");
+        // Debug.Log($"{this}: OnGoalAchieved()");
         _goalAchieved = true;
         if (_dataGreeting != null)
         {

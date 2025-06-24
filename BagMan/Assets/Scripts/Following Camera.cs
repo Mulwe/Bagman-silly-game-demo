@@ -18,14 +18,24 @@ public class FollowingCamera : MonoBehaviour
     private Coroutine _coroutine;
 
     public event Action<FocusTarget> OnTargetReached;
+    public event Action OnTargetReachedAll;
+    public event Action<bool, float> OnStartPulseDropZone;
 
+    public void StopTrackingTargets()
+    {
+        StopAllCoroutines();
+        StartCoroutine(FocusOnPlayer());
+    }
 
     public void ReceiveListOfTargets(List<FocusTarget> lstTargets, Tutorial t)
     {
-        if (_coroutine == null)
-        {
-            _coroutine = StartCoroutine(CameraTargets(lstTargets));
-        }
+        _coroutine ??= StartCoroutine(CameraTargets(lstTargets));
+    }
+
+    IEnumerator FocusOnPlayer()
+    {
+        yield return SmoothCameraFocus(_target, _speed);
+        _isFollowingPlayer = true;
     }
 
     private void OnValidate()
@@ -36,10 +46,12 @@ public class FollowingCamera : MonoBehaviour
 
     private void Start()
     {
-        _isFollowingPlayer = true;
-        _camera = new Vector3(_targetPos.x, _targetPos.y, _z);
-
-        this.transform.position = _target.transform.position;
+        if (_target != null)
+        {
+            _isFollowingPlayer = true;
+            _camera = new Vector3(_targetPos.x, _targetPos.y, _z);
+            this.transform.position = _target.transform.position;
+        }
         _coroutine = null;
 
     }
@@ -48,6 +60,7 @@ public class FollowingCamera : MonoBehaviour
     {
         if (_isFollowingPlayer == true)
             CameraMove(_target);
+
     }
 
     private void CameraMove(GameObject target)
@@ -66,12 +79,22 @@ public class FollowingCamera : MonoBehaviour
         {
             if (data.target != null)
             {
-                yield return StartCoroutine(SmoothCameraFocus(data.target, data.speed));
+                OnStartPulseDropZone.Invoke(true, data.delay);
+                if (!data.target.Equals(_target))
+                {
+                    StopFollowingTarget();
+                    yield return StartCoroutine(SmoothCameraFocus(data.target, data.speed));
+                }
+                else
+                {
+                    KeepFollowingTarget();
+                }
                 OnTargetReached.Invoke(data);
                 yield return new WaitForSeconds(data.delay);
             }
         }
-        //Send finish 
+        yield return null;
+        OnTargetReachedAll.Invoke();
         KeepFollowingTarget();
         _coroutine = null;
     }
@@ -89,19 +112,21 @@ public class FollowingCamera : MonoBehaviour
         }
     }
 
-
     void StopFollowingTarget()
     {
         _isFollowingPlayer = false;
-
     }
 
     void KeepFollowingTarget()
     {
         _isFollowingPlayer = true;
-
     }
 
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+        _isFollowingPlayer = true;
+    }
 
 
 }

@@ -40,14 +40,18 @@ public class EventBus
     public UnityEvent ShowLevelStats { get; } = new();
 
 
+
+
     public UnityEvent<bool> Sound { get; } = new();
     public UnityEvent<bool> SoundBackground { get; } = new();
     public UnityEvent<bool> SoundFx { get; } = new();
 
     //Highlight
     public UnityEvent<bool, float> OutlineDropzone { get; } = new();
+    public UnityEvent TutorialFinished { get; } = new();
 
     public void TriggerOutlineDropzone(bool state, float duration) => OutlineDropzone.Invoke(state, duration);
+    public void TriggerTutorialFinished() => TutorialFinished.Invoke();
 
     /// <summary> 
     /// True = On, False = Off

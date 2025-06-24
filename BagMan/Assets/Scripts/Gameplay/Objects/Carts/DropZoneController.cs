@@ -14,16 +14,21 @@ public class DropZoneController : MonoBehaviour
     private Gameplay _gameplay;
     private GameManager _gm;
     private SpawnedObjects _spawner;
-
     private ulong _count = 0;
     public ulong Count => _count;
     private CartBehaviorOptions _behavior;
     public bool IsRespawning => _behavior.IsRespawning;
-
     private Coroutine _response;
 
     private ShaderController _outline;
-    public event Action<bool, float> OnToogleOutline;
+    public event Action<bool, float> ToogleOutline;
+    public event Action TurnOffOutline;
+
+
+    public void OnTurnOffOutline()
+    {
+        TurnOffOutline.Invoke();
+    }
 
     private void Start()
     {
@@ -55,20 +60,20 @@ public class DropZoneController : MonoBehaviour
         AddListeners();
     }
 
-
-    public void AddListeners()
+    private void AddListeners()
     {
         _gm?.EventBus?.StartTask.AddListener(OnCartCountedInScore);
         _gm?.EventBus?.GameClearScore.AddListener(OnScoreCleared);
-        _gm?.EventBus?.OutlineDropzone.AddListener(ToogleOutline);
+        _gm?.EventBus?.OutlineDropzone.AddListener(OnToogleOutline);
     }
 
-    private void ToogleOutline(bool state, float duration)
+    private void OnToogleOutline(bool state, float duration)
     {
-        if (_outline != null)
-        {
-            OnToogleOutline(state, duration);
-        }
+        StartOutlinePulse(state, duration);
+    }
+    public void StartOutlinePulse(bool state, float duration)
+    {
+        ToogleOutline.Invoke(state, duration);
     }
 
     private void OnScoreCleared()
@@ -81,6 +86,7 @@ public class DropZoneController : MonoBehaviour
     {
         _gm?.EventBus?.StartTask.RemoveListener(OnCartCountedInScore);
         _gm?.EventBus?.GameClearScore.RemoveListener(OnScoreCleared);
+        _gm?.EventBus?.OutlineDropzone.AddListener(OnToogleOutline);
     }
 
     private void TryTeleportCart(Collider2D collision)
@@ -175,7 +181,7 @@ public class DropZoneController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        //Cart -> CapsuleCollider2D -> despawn
+        //Cart -> CapsuleCollider2D -> despawn / or respawn
         if (collision != null
             && collision.CompareTag("cart")
             && collision is CapsuleCollider2D caps)

@@ -84,11 +84,11 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         _direction = _movement.ReadValue<Vector2>();
+
     }
 
     private void FixedUpdate()
     {
-
         ProccessInput();
         Animate();
         _rb.linearVelocity = new Vector2(_direction.x * _speed, _direction.y * _speed);

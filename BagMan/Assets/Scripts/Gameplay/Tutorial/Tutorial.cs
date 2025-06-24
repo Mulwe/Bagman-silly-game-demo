@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -36,41 +37,140 @@ public struct Tip
 public class Tutorial : MonoBehaviour
 {
     [SerializeField] private Camera _camera;
+
+    [SerializeField] private DropZoneController _zone;
     [Header("Gameobject List for tutorial:")]
     [SerializeField] private List<FocusTarget> _lst = new List<FocusTarget>();
 
     private Tip _tip;
-    // [SerializeField] private List<GameObject> _objs;
     private FollowingCamera _followingCamera;
     private Coroutine _coroutine;
-    OutlineFx.Outline _outline;
+
+    public bool IsFinished { get; private set; }
+
+    public event Action TutorialFinished;
+
+    public void SetDropZoneController(DropZoneController zone)
+    {
+        this._zone = zone;
+    }
 
     private void Start()
     {
+        IsFinished = false;
         if (_camera != null)
         {
             _followingCamera = _camera.GetComponent<FollowingCamera>();
             GameObject obj = new("Tip");
             TextMeshPro text = SetupText(obj);
-            _outline = GetComponent<OutlineFx.Outline>();
             _tip = new Tip(obj, text);
         }
     }
 
     public void StartTutorial()
     {
+        if (_zone == null)
+        {
+            Debug.LogError("DropZone not init");
+            return;
+        }
+        AddListeners();
         TrackTargets(_lst);
     }
 
+    public void InterruptTutorial()
+    {
+
+        if (_followingCamera != null)
+        {
+            _followingCamera.StopTrackingTargets();
+        }
+        StopAllCoroutines();
+        OnTutorialEnds();
+    }
+
+    private void TrackTargets(List<FocusTarget> _lst)
+    {
+        if (_lst != null && _followingCamera != null)
+        {
+            _followingCamera.ReceiveListOfTargets(_lst, this);
+        }
+        else
+            Debug.Log("Error");
+    }
+
+    private void OnTutorialEnds()
+    {
+        HideTextBox();
+        RemoveListeners();
+        _zone?.OnTurnOffOutline();
+        IsFinished = true;
+        TutorialFinished?.Invoke();//startGameplay
+    }
+
+    private void OnFocusComplete(FocusTarget data)
+    {
+        _coroutine = StartCoroutine(WaitText(data, data.delay * 0.9f));
+    }
+
+    IEnumerator WaitText(FocusTarget data, float timespan)
+    {
+        ShowTextBox(data);
+        yield return new WaitForSeconds(timespan);
+        _zone.OnTurnOffOutline();
+        HideTextBox();
+    }
+
+
+
+    private void OnDisable()
+    {
+        RemoveListeners();
+        if (_coroutine != null)
+            StopCoroutine(_coroutine);
+        if (_tip.obj)
+        {
+            _tip.obj.SetActive(false);
+            UnityEngine.Object.Destroy(_tip.obj);
+            _tip.obj = null;
+        }
+        if (_lst != null && _lst.Count > 0)
+            _lst.Clear();
+
+    }
+
+    private void AddListeners()
+    {
+        _followingCamera.OnTargetReached += OnFocusComplete;
+        _followingCamera.OnStartPulseDropZone += OnZoneStartPulse;
+        _followingCamera.OnTargetReachedAll += OnTutorialEnds;
+    }
+    private void RemoveListeners()
+    {
+        if (_followingCamera != null)
+        {
+            _followingCamera.OnTargetReached -= OnFocusComplete;
+            _followingCamera.OnTargetReachedAll -= OnTutorialEnds;
+            _followingCamera.OnStartPulseDropZone -= OnZoneStartPulse;
+        }
+    }
+
+    private void OnZoneStartPulse(bool state, float secDelay)
+    {
+        if (_zone != null)
+            _zone.StartOutlinePulse(state, secDelay);
+    }
+
+    //Tip object
     private TextMeshPro SetupText(GameObject obj)
     {
-        TextMeshPro text = obj.AddComponent<TextMeshPro>();
 
+        TextMeshPro text = obj.AddComponent<TextMeshPro>();
 
         if (text != null)
         {
-            text.enabled = false;
-            text.text = "Test";
+            obj.SetActive(false);
+            text.enabled = true;
             text.color = Color.white;
             text.fontSize = 36;
             text.alignment = TextAlignmentOptions.Center;
@@ -85,48 +185,10 @@ public class Tutorial : MonoBehaviour
             mat.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 1f);
             mat.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -1f);
             mat.SetFloat(ShaderUtilities.ID_UnderlayDilate, 1f);
+            text.text = "Test";
             text.fontMaterial = mat;
-
         }
         return text;
-    }
-
-
-    private void TrackTargets(List<FocusTarget> _lst)
-    {
-        if (_lst != null && _followingCamera != null)
-        {
-            _followingCamera.OnTargetReached += OnFocusComplete;
-            _followingCamera.ReceiveListOfTargets(_lst, this);
-        }
-        else
-            Debug.Log("Error");
-    }
-
-    IEnumerator WaitText(float timespan)
-    {
-        yield return new WaitForSeconds(timespan);
-        HideTextBox();
-    }
-
-    private void OnFocusComplete(FocusTarget data)
-    {
-        ShowTextBox(data);
-        StartCoroutine(WaitText(data.delay - 0.1f));
-    }
-
-    private void OnDisable()
-    {
-        if (_followingCamera != null)
-        {
-            _followingCamera.OnTargetReached -= OnFocusComplete;
-        }
-        if (_tip.obj)
-        {
-            _tip.obj.SetActive(false);
-            Object.Destroy(_tip.obj);
-            _tip.obj = null;
-        }
     }
 
     private void ShowTextBox(FocusTarget data)
@@ -140,7 +202,6 @@ public class Tutorial : MonoBehaviour
             else
                 _tip.obj.transform.position = pos + new Vector3(0, 2f, 0);
             _tip.text.text = data.text;
-            _tip.text.enabled = true;
             _tip.obj.SetActive(true);
         }
     }

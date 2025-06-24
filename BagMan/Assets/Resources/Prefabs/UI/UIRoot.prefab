@@ -1913,7 +1913,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: Loading...
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 0}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -7007,12 +7007,12 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Resource
       value: 
-      objectReference: {fileID: 8300000, guid: c772347510249ad4bbb789009b88087c, type: 3}
+      objectReference: {fileID: 8300000, guid: e3261ea7943d5c843a544e8109c48bb2, type: 3}
     - target: {fileID: 266874144835607788, guid: d67b7dbc23c218341b5a3863cd776e28,
         type: 3}
       propertyPath: m_audioClip
       value: 
-      objectReference: {fileID: 8300000, guid: c772347510249ad4bbb789009b88087c, type: 3}
+      objectReference: {fileID: 8300000, guid: e3261ea7943d5c843a544e8109c48bb2, type: 3}
     - target: {fileID: 858406938343520476, guid: d67b7dbc23c218341b5a3863cd776e28,
         type: 3}
       propertyPath: m_Name
