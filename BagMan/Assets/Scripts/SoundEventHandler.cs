@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class SoundEventHandler : MonoBehaviour
 {
-    [SerializeField] private AudioSource _background;
+    [SerializeField] private SoundMusicManager _background;
+
     [SerializeField] private SoundMixerManager _mixer;
     [SerializeField] private SoundFXManager _soundFX;
 
@@ -11,7 +12,7 @@ public class SoundEventHandler : MonoBehaviour
 
     public void Run()
     {
-        TurnOnAllSounds();
+
     }
 
     public void Initialize(EventBus evntBus)
@@ -20,15 +21,16 @@ public class SoundEventHandler : MonoBehaviour
         {
             _bus = evntBus;
             AddListeners();
-
+            Debug.Log($"{this} listeners on");
         }
     }
 
     private void Start()
     {
         StartCoroutine(WaitInitialization());
-        _background = GetComponentInChildren<AudioSource>();
-        TurnOffAllSounds();
+
+        if (_background == null)
+            _background = this.GetComponentInChildren<SoundMusicManager>();
     }
 
     private void AddListeners()
@@ -59,68 +61,56 @@ public class SoundEventHandler : MonoBehaviour
     private void OnToogleOnOffAllSounds(bool status)
     {
         if (status)
+        {
             TurnOnAllSounds();
+        }
         else
+        {
             TurnOffAllSounds();
+        }
     }
 
     private void OnToogleOnOffMusic(bool status)
     {
-        if (status)
-            TurnOnBackgroundMusic();
-        else
-            TurnOffBackgroundMusic();
+        SetMusic(status);
     }
 
     private void OnToogleOnOffSoundFX(bool status)
     {
         if (status)
-            TurnOnSoundFX();
+            SetSoundFX(1f);
         else
-            TurnOffSoundFX();
+            SetSoundFX(0f);
     }
-
 
     private void TurnOffAllSounds()
     {
-        //Background music — OFF
-        TurnOffBackgroundMusic();
-        //SoundFXs sounds
-        TurnOffSoundFX();
+        SetMusic(false);
+        SetSoundFX(0f);
     }
 
     private void TurnOnAllSounds()
     {
-        //Background music — ON
-        TurnOnBackgroundMusic();
-        //SoundFXs sounds
-        TurnOnSoundFX();
+        SetMusic(true);
+        SetSoundFX(1f);
     }
 
-    private void TurnOffSoundFX()
+    private void SetSoundFX(float volume)
     {
         if (_soundFX != null)
-            _soundFX.ChangeVolume(0f);
+            _soundFX.ChangeVolume(volume);
     }
 
-    private void TurnOnSoundFX()
-    {
-        if (_soundFX != null)
-            _soundFX.ChangeVolume(1f);
-    }
-
-    private void TurnOffBackgroundMusic()
-    {
-        if (_background != null) _background.Stop();
-    }
-
-    private void TurnOnBackgroundMusic()
+    private void SetMusic(bool state)
     {
         if (_background != null)
         {
-            if (_background.isPlaying) _background.Stop();
-            _background.Play();
+            if (state)
+                _background.PlayMusic();
+            else
+                _background.StopMusic();
         }
+
     }
 
     private void OnDestroy()

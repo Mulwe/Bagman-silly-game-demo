@@ -7,10 +7,8 @@ using UnityEngine.Events;
 //
 public class EventBus
 {
-
     public UnityEvent<bool> UI_Menu { get; } = new();
     public UnityEvent UI_GameOver { get; } = new UnityEvent();
-    public UnityEvent<bool> PlayerControl { get; } = new();
     public UnityEvent<bool> UIRunTime { get; } = new();
     public UnityEvent UIPause { get; } = new();
     public UnityEvent UIResume { get; } = new();
@@ -29,7 +27,6 @@ public class EventBus
 
     public UnityEvent<Timer> Timer { get; } = new();
     public UnityEvent TimerReceived { get; } = new();
-    public UnityEvent AddPoint { get; } = new();
 
     public UnityEvent GameLevelComplete { get; } = new();
     public UnityEvent GameLevelGoalComplete { get; } = new();
@@ -38,18 +35,19 @@ public class EventBus
 
 
     public UnityEvent GameExit { get; } = new UnityEvent();
-    public UnityEvent<float> GameRestartStopPlayer { get; } = new();
     public UnityEvent GameRestart { get; } = new();
     public UnityEvent HideLevelStats { get; } = new();
     public UnityEvent ShowLevelStats { get; } = new();
-    // public UnityEvent GameStartLevel { get; } = new();
+
 
     public UnityEvent<bool> Sound { get; } = new();
     public UnityEvent<bool> SoundBackground { get; } = new();
     public UnityEvent<bool> SoundFx { get; } = new();
 
-    public void TriggerSoundOn() => Sound.Invoke(true);
-    public void TriggerSoundOff() => Sound.Invoke(false);
+    //Highlight
+    public UnityEvent<bool, float> OutlineDropzone { get; } = new();
+
+    public void TriggerOutlineDropzone(bool state, float duration) => OutlineDropzone.Invoke(state, duration);
 
     /// <summary> 
     /// True = On, False = Off
@@ -57,17 +55,11 @@ public class EventBus
     /// <param name="status"></param>
     public void TriggerSoundToogle(bool status) => Sound.Invoke(status);
 
-    public void TriggerSoundBackgroundOn() => SoundBackground.Invoke(true);
-    public void TriggerSoundBackgroundOff() => SoundBackground.Invoke(false);
-
     /// <summary> 
     /// True = On, False = Off
     /// </summary>
     /// <param name="status"></param>
     public void TriggerSoundBackgroundToogle(bool status) => SoundBackground.Invoke(status);
-
-    public void TriggerSoundFxOn() => SoundFx.Invoke(true);
-    public void TriggerSoundFxOff() => SoundFx.Invoke(false);
 
     /// <summary> 
     /// True = On, False = Off
@@ -104,8 +96,6 @@ public class EventBus
     public void TriggerGameClearScore()
         => GameClearScore.Invoke();
 
-
-
     public void TriggerPlayerStatsChanged()
         => PlayerStatsChanged.Invoke();
 
@@ -121,8 +111,6 @@ public class EventBus
         => TimerReceived.Invoke();
 
     //UI EndLevel
-
-
 
     //UI Updates
     public void TriggerTimerUI(Timer timer)
@@ -167,24 +155,33 @@ public class EventBus
 
     public void RemoveAllListeners()
     {
-        GameLevelComplete.RemoveAllListeners();
-        GameCountScore.RemoveAllListeners();
 
-        TimerReceived.RemoveAllListeners();
-        AddPoint.RemoveAllListeners();
-        Timer.RemoveAllListeners();
+
+        UI_Menu.RemoveAllListeners();
+        UI_GameOver.RemoveAllListeners();
+        UIRunTime.RemoveAllListeners();
+        UIPause.RemoveAllListeners();
+        UIResume.RemoveAllListeners();
         StartTask.RemoveAllListeners();
-        PlayerStatsChanged.RemoveAllListeners();
         PlayerStaminaUpdateUI.RemoveAllListeners();
         PlayerSpeedUpdateUI.RemoveAllListeners();
         PlayerCountUpdateUI.RemoveAllListeners();
         TemperatureChangedUI.RemoveAllListeners();
-        UI_Menu.RemoveAllListeners();
-        UI_GameOver.RemoveAllListeners();
-        PlayerControl.RemoveAllListeners();
-        UIRunTime.RemoveAllListeners();
+        PlayerStatsChanged.RemoveAllListeners();
+        PlayerDefaultSpeed.RemoveAllListeners();
+        ResetPlayerData.RemoveAllListeners();
+        Timer.RemoveAllListeners();
+        TimerReceived.RemoveAllListeners();
+        GameLevelComplete.RemoveAllListeners();
+        GameLevelGoalComplete.RemoveAllListeners();
+        GameCountScore.RemoveAllListeners();
+        GameClearScore.RemoveAllListeners();
         GameExit.RemoveAllListeners();
-        UIPause.RemoveAllListeners();
-        UIResume.RemoveAllListeners();
+        GameRestart.RemoveAllListeners();
+        HideLevelStats.RemoveAllListeners();
+        ShowLevelStats.RemoveAllListeners();
+        Sound.RemoveAllListeners();
+        SoundBackground.RemoveAllListeners();
+        SoundFx.RemoveAllListeners();
     }
 }

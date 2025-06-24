@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -21,12 +22,13 @@ public class DropZoneController : MonoBehaviour
 
     private Coroutine _response;
 
-
-
+    private ShaderController _outline;
+    public event Action<bool, float> OnToogleOutline;
 
     private void Start()
     {
         DropZoneCollider = GetComponent<BoxCollider2D>();
+        _outline = GetComponent<ShaderController>();
         if (DropZoneCollider != null)
             DropZoneCollider.enabled = true;
         else
@@ -58,9 +60,15 @@ public class DropZoneController : MonoBehaviour
     {
         _gm?.EventBus?.StartTask.AddListener(OnCartCountedInScore);
         _gm?.EventBus?.GameClearScore.AddListener(OnScoreCleared);
+        _gm?.EventBus?.OutlineDropzone.AddListener(ToogleOutline);
+    }
 
-        //запросить счет. отправить счет
-        // _gm?.EventBus?.GameCountScore.AddListener(OnCartCountedInScore);
+    private void ToogleOutline(bool state, float duration)
+    {
+        if (_outline != null)
+        {
+            OnToogleOutline(state, duration);
+        }
     }
 
     private void OnScoreCleared()

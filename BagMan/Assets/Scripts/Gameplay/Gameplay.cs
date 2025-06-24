@@ -8,10 +8,10 @@ public class Gameplay : MonoBehaviour
     [SerializeField] private SpawnedObjects _spawner;
     [Range(1, 50)]
     [SerializeField] private readonly float _playerSpeed = 8f;
+    [SerializeField] private Tutorial _tutor;
 
     //[SerializeField] private AudioClip _collectedCart;
     [SerializeField] private AudioClip[] _collectedSoundClip;
-
 
     private GameManager _gameManager;
     private DropZoneController _dropZoneController;
@@ -24,22 +24,22 @@ public class Gameplay : MonoBehaviour
     public GameManager GameManager => _gameManager;
     public bool IsInitialized => _initialized && _isStarted;
 
-
     public Timer LevelTimer;
-
     [Header("Level Timer:")]
     [SerializeField] private float _timeDuration = 5f;
     [Header("Pre-trigger delay of inactivity:")]
-    [SerializeField] private float _delay = 10f;
+    [SerializeField] private float _delay = 100f;
 
     private int _goalCondition = 0;
-
 
     public void Run()
     {
         if (_initialized == true)
         {
-            StartGameplay(_delay);
+            _gameManager.EventBus.OutlineDropzone.Invoke(true, 3f);
+            _tutor.StartTutorial();
+            //StartGameplay(_delay);
+
         }
         else
             Debug.Log("Gameplay components are not init. GamePlay not started");
@@ -54,6 +54,8 @@ public class Gameplay : MonoBehaviour
             return;
         }
 
+        if (_tutor == null)
+            _tutor = GetComponent<Tutorial>();
         if (!_spawner.IsInit)
             _spawner.Initialize();
         if (_spawner.GetList() != null && gm != null)
@@ -80,6 +82,7 @@ public class Gameplay : MonoBehaviour
         }
     }
 
+
     private IEnumerator WaitPlayersInteractions(Timer timer, float seconds)
     {
         //show tips for player. if no interactions start the timer
@@ -91,6 +94,8 @@ public class Gameplay : MonoBehaviour
             //show tip — encourage player to action           
             _gameManager.EventBus.TriggerTimerUI(timer);
             timer.Start();
+            _gameManager.EventBus.TriggerSoundBackgroundToogle(true);
+
         }
         else
             Debug.Log("Timer is still running");
@@ -139,6 +144,7 @@ public class Gameplay : MonoBehaviour
         {
             StopAllCoroutines();
             _gameManager.EventBus.Timer.RemoveListener(OnFirstPlayerScored);
+            _gameManager.EventBus.TriggerSoundBackgroundToogle(true);
             LevelTimer.Start();
             //Debug.Log("Timer trigered by cart");
         }
