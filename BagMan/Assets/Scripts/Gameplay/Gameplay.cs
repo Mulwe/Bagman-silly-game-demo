@@ -8,10 +8,13 @@ public class Gameplay : MonoBehaviour
     [SerializeField] private SpawnedObjects _spawner;
     [Range(1, 50)]
     [SerializeField] private readonly float _playerSpeed = 8f;
-    [SerializeField] private Tutorial _tutorial;
+    private Tutorial _tutorial;
 
     //[SerializeField] private AudioClip _collectedCart;
+    [Header("PICK-UP Sound clips:")]
     [SerializeField] private AudioClip[] _collectedSoundClip;
+    [SerializeField] private AudioClip _GameOverSoundClip;
+    [SerializeField] private AudioClip _GameWinSoundClip;
 
     private GameManager _gameManager;
     private DropZoneController _dropZoneController;
@@ -31,15 +34,13 @@ public class Gameplay : MonoBehaviour
     [SerializeField] private float _delay = 10f;
 
     private int _goalCondition = 0;
+    private int _score = 0;
 
     public void Run()
     {
         if (_initialized == true)
         {
             _tutorial.StartTutorial();
-
-
-
         }
         else
             Debug.Log("Gameplay components are not init. GamePlay not started");
@@ -48,6 +49,8 @@ public class Gameplay : MonoBehaviour
     public void Initialize(GameManager gm)
     {
         _gameManager = gm;
+        _score = 0;
+        _goalCondition = 0;
         if (gm == null || gm?.BtnHandlerMenu == null || gm?.PlayerController == null)
         {
             Debug.LogError("Gameplay: References Init error");
@@ -58,7 +61,7 @@ public class Gameplay : MonoBehaviour
         _dropZoneController = GetComponentInChildren<DropZoneController>();
         InitTutorial();
 
-        if (!_spawner.IsInit)
+        if (_spawner != null && !_spawner.IsInit)
             _spawner.Initialize();
 
         if (_spawner.GetList() != null && gm != null)
@@ -95,7 +98,6 @@ public class Gameplay : MonoBehaviour
         if (_isStarted && _initialized && _gameManager != null)
         {
             StartCoroutine(WaitPlayersInteractions(LevelTimer, delayTime));
-            _gameManager.EventBus?.GameLevelComplete.AddListener(OnLevelComplete);
         }
     }
 
@@ -142,10 +144,12 @@ public class Gameplay : MonoBehaviour
 
     private void PrepareToRestart(GameManager gm)
     {
-
+        //Debug.Log("<color=green>PrepareToRestart()</color>");
         if (_spawner != null)
         {
-            _spawner.RestartSpawner();
+            int rnd = UnityEngine.Random.Range(1, 20);
+            _spawner.Dispose();
+            _spawner.Initialize(rnd);
             _goalCondition = _spawner.GetList().Count;
         }
         InitTimer(LevelTimer);
@@ -159,11 +163,10 @@ public class Gameplay : MonoBehaviour
 
         if (_tutorial != null && _tutorial.IsFinished == false)
         {
-            Debug.Log("Игрок начала раньше туториала");
+            //Debug.Log("Игрок начала раньше туториала");
             OnTutorialFinished();
             _tutorial.InterruptTutorial();
             _tutorial.enabled = false;
-
         }
 
         if (LevelTimer != null && !LevelTimer.IsRunning)
@@ -179,12 +182,11 @@ public class Gameplay : MonoBehaviour
     //Уровень завершен
     private void OnLevelComplete()
     {
+        // Debug.Log("OnLevelComplete()");
         if (_gameManager != null)
         {
             _gameManager.EventBus?.TriggerSoundBackgroundToogle(false);
-
             _gameManager.EventBus?.Timer.RemoveListener(OnFirstPlayerScored);
-            _gameManager.EventBus?.GameLevelComplete.RemoveListener(OnLevelComplete);
             RemoveListeners();
             _gameManager.EventBus.GameRestart.AddListener(OnGameRestarted);
             _gameManager.PlayerController.UpdateCurrentPlayerSpeed(0f);
@@ -194,6 +196,7 @@ public class Gameplay : MonoBehaviour
     //Уровень перезапускают
     private void OnGameRestarted()
     {
+        //  Debug.Log("OnGameRestarted()");
         if (_gameManager != null && _gameManager.EventBus != null)
         {
             _gameManager.EventBus.GameRestart.RemoveListener(OnGameRestarted);
@@ -210,11 +213,9 @@ public class Gameplay : MonoBehaviour
     private void OnGoalAchived()
     {
         //send extra setups
-        if (_goalCondition > 0)
-        {
-            _goalCondition = 0;
-            _gameManager.EventBus.TriggerGameLevelComplete();
-        }
+        //Debug.Log("OnGoalAchived()");
+        _gameManager.EventBus.TriggerGameLevelComplete();
+        SoundFXManager.Instance.PlaySoundFXClip(_GameWinSoundClip, transform, 1f);
     }
 
     private void AddListeners()
@@ -279,14 +280,17 @@ public class Gameplay : MonoBehaviour
         //SoundFXManager.Instance.PlaySoundFXClip(_collectedCart, transform, 1f);
         SoundFXManager.Instance.PlayRandomSoundFXClip(_collectedSoundClip, transform, 1f);
 
+
         if (_dropZoneController == null)
             _dropZoneController = GetComponentInChildren<DropZoneController>();
         if (_dropZoneController != null)
             score = _dropZoneController.Count;
-        int intScore = int.Parse(score.ToString());
-        if (_goalCondition > 0 && intScore >= _goalCondition)
+        _score = int.Parse(score.ToString());
+        if (_goalCondition > 0 && _score >= _goalCondition)
         {
             _gameManager?.EventBus?.TriggerGameLevelGoalComplete();
+            _goalCondition = 0;
+            _score = 0;
         }
     }
 }

@@ -54,10 +54,21 @@ public class SpawnedObjects : MonoBehaviour
         }
     }
 
-    public void RestartSpawner()
+    public void Initialize(int cartAmount)
     {
-        Dispose();
-        Initialize();
+        ChangeAmount(cartAmount);
+        if (_spawnZone != null)
+        {
+            _spawnZone.Initialize();
+            _poolManager = new PoolManager(listObjects);
+            if (_coroutine != null)
+            {
+                StopCoroutine(_coroutine);
+                _coroutine = null;
+            }
+            _coroutine = StartCoroutine(PoolCleanupCoroutine(_poolManager));
+            _isSpawned = SpawnInZone(_spawnZone);
+        }
     }
 
     public void Dispose()
@@ -84,6 +95,7 @@ public class SpawnedObjects : MonoBehaviour
     {
         //выключу колайдер прямо перед проверкой.  
         //Изза функции Physics2D.OverlapBox тригирится на любые колайдеры - видимые и невидимые. 
+
         if (_objPrefab != null)
         {
             listObjects = Spawner(_objPrefab, s, _amount);

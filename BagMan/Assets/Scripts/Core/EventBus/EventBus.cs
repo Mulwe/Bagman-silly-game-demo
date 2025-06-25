@@ -160,13 +160,13 @@ public class EventBus
     public void RemoveAllListeners()
     {
 
-
         UI_Menu.RemoveAllListeners();
         UI_GameOver.RemoveAllListeners();
         UIRunTime.RemoveAllListeners();
         UIPause.RemoveAllListeners();
         UIResume.RemoveAllListeners();
         StartTask.RemoveAllListeners();
+        //UI
         PlayerStaminaUpdateUI.RemoveAllListeners();
         PlayerSpeedUpdateUI.RemoveAllListeners();
         PlayerCountUpdateUI.RemoveAllListeners();
@@ -187,5 +187,8 @@ public class EventBus
         Sound.RemoveAllListeners();
         SoundBackground.RemoveAllListeners();
         SoundFx.RemoveAllListeners();
+        //Highlight
+        OutlineDropzone.RemoveAllListeners();
+        TutorialFinished.RemoveAllListeners();
     }
 }

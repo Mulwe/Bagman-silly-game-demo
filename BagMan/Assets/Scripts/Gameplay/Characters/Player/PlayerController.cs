@@ -58,6 +58,7 @@ public class PlayerController : MonoBehaviour
         _escape = PlayerControls.UI.Menu;
         _movement = PlayerControls.Player.Move;
         _shift = PlayerControls.Player.ShiftAction;
+
     }
 
     private void OnEnable()

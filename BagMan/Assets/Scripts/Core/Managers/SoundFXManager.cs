@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class SoundFXManager : MonoBehaviour
@@ -21,6 +22,11 @@ public class SoundFXManager : MonoBehaviour
     public void PlaySoundFXClip(AudioClip audioClip, Transform spawn, float volume)
     {
         //spawn in GameObject
+        if (audioClip == null)
+        {
+            Debug.LogWarning($"AudioClip is null. Not played");
+            return;
+        }
         AudioSource audioSource = Instantiate(_soundFXObject, spawn.position, Quaternion.identity);
         audioSource.clip = audioClip;
         audioSource.volume = volume;
@@ -32,6 +38,12 @@ public class SoundFXManager : MonoBehaviour
 
     public void PlayRandomSoundFXClip(AudioClip[] audioClip, Transform spawn, float volume)
     {
+        if (audioClip == null || audioClip.Count() == 0)
+        {
+            Debug.LogWarning($"AudioClip array is null. Exit");
+            return;
+        }
+
         int rnd = UnityEngine.Random.Range(0, audioClip.Length);
 
         AudioSource audioSource = Instantiate(_soundFXObject, spawn.position, Quaternion.identity);

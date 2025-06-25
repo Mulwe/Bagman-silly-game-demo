@@ -1157,7 +1157,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &145042954284733914
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1913,8 +1913,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: Loading...
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 0}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f665cbb4e4393794f802ac3ed5b6caaf, type: 2}
+  m_sharedMaterial: {fileID: -8725257009111011359, guid: f665cbb4e4393794f802ac3ed5b6caaf,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1938,7 +1939,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 44.75
+  m_fontSize: 63.2
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2245,7 +2246,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 5, y: -80}
+  m_AnchoredPosition: {x: 5, y: -55}
   m_SizeDelta: {x: 300, y: 20}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1645214612580698978
@@ -3797,7 +3798,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -4641,7 +4642,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 5, y: -55}
+  m_AnchoredPosition: {x: 5, y: -30}
   m_SizeDelta: {x: 300, y: 20}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &6279632709488958301
@@ -5439,7 +5440,8 @@ MonoBehaviour:
     Q - drop off'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f665cbb4e4393794f802ac3ed5b6caaf, type: 2}
-  m_sharedMaterial: {fileID: 0}
+  m_sharedMaterial: {fileID: -8725257009111011359, guid: f665cbb4e4393794f802ac3ed5b6caaf,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7007,12 +7009,12 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Resource
       value: 
-      objectReference: {fileID: 8300000, guid: e3261ea7943d5c843a544e8109c48bb2, type: 3}
+      objectReference: {fileID: 8300000, guid: c772347510249ad4bbb789009b88087c, type: 3}
     - target: {fileID: 266874144835607788, guid: d67b7dbc23c218341b5a3863cd776e28,
         type: 3}
       propertyPath: m_audioClip
       value: 
-      objectReference: {fileID: 8300000, guid: e3261ea7943d5c843a544e8109c48bb2, type: 3}
+      objectReference: {fileID: 8300000, guid: c772347510249ad4bbb789009b88087c, type: 3}
     - target: {fileID: 858406938343520476, guid: d67b7dbc23c218341b5a3863cd776e28,
         type: 3}
       propertyPath: m_Name

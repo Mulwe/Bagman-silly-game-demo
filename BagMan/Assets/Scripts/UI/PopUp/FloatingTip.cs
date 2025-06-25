@@ -9,7 +9,6 @@ public class FloatingTip : MonoBehaviour
     private TextMeshPro _text;
     private MeshRenderer _meshRenderer;
     private Animator _animator;
-    private float _fadeDelay = 5.0f;
 
     private Coroutine _coroutine;
     private string _defaultText;

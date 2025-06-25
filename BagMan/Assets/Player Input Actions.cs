@@ -44,6 +44,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": ""Hold"",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""interactions"",
+                    ""type"": ""Button"",
+                    ""id"": ""6a27e617-3d4b-46f7-8de9-368d19742b25"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -103,6 +112,61 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
+                    ""name"": ""TouchScreen"",
+                    ""id"": ""012b71fb-fe33-4904-9478-ed164c7f8363"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""30bce2a6-491d-4cbb-9dc8-69813c26cfec"",
+                    ""path"": ""<Touchscreen>/primaryTouch/delta/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""cf243c6b-ff48-480d-8bf9-6d0ad236c20f"",
+                    ""path"": ""<Touchscreen>/delta/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""d94d6aa6-a981-41ab-af31-f8eecf234a52"",
+                    ""path"": ""<Touchscreen>/delta/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""1c3b543b-82f4-4008-bbb2-dbdc71be7a00"",
+                    ""path"": ""<Touchscreen>/delta/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
                     ""name"": """",
                     ""id"": ""34e577fb-4b74-4bd6-9e40-42c38169ce9c"",
                     ""path"": ""<Keyboard>/leftShift"",
@@ -110,6 +174,28 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""ShiftAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9da4455f-cb3d-4209-bf99-ba99982a5032"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""interactions"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bb95f53b-4f95-4750-aadf-5b42ce9dfaf3"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""interactions"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -150,6 +236,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_ShiftAction = m_Player.FindAction("ShiftAction", throwIfNotFound: true);
+        m_Player_interactions = m_Player.FindAction("interactions", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Menu = m_UI.FindAction("Menu", throwIfNotFound: true);
@@ -222,12 +309,14 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_ShiftAction;
+    private readonly InputAction m_Player_interactions;
     public struct PlayerActions
     {
         private @PlayerInputActions m_Wrapper;
         public PlayerActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @ShiftAction => m_Wrapper.m_Player_ShiftAction;
+        public InputAction @interactions => m_Wrapper.m_Player_interactions;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -243,6 +332,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ShiftAction.started += instance.OnShiftAction;
             @ShiftAction.performed += instance.OnShiftAction;
             @ShiftAction.canceled += instance.OnShiftAction;
+            @interactions.started += instance.OnInteractions;
+            @interactions.performed += instance.OnInteractions;
+            @interactions.canceled += instance.OnInteractions;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -253,6 +345,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ShiftAction.started -= instance.OnShiftAction;
             @ShiftAction.performed -= instance.OnShiftAction;
             @ShiftAction.canceled -= instance.OnShiftAction;
+            @interactions.started -= instance.OnInteractions;
+            @interactions.performed -= instance.OnInteractions;
+            @interactions.canceled -= instance.OnInteractions;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -320,6 +415,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnShiftAction(InputAction.CallbackContext context);
+        void OnInteractions(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

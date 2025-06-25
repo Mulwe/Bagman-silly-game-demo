@@ -9,7 +9,6 @@ public class EndLevelStatsPopup : MonoBehaviour
 
     private ulong _score = 0;
     private bool _isInit = false;
-
     private bool _goalAchieved = false;
 
     public bool IsInit => _isInit;
@@ -22,6 +21,7 @@ public class EndLevelStatsPopup : MonoBehaviour
             _eventbus = eventBus;
             AddListeners(_eventbus);
             _isInit = true;
+            _goalAchieved = false;
         }
     }
 
@@ -123,6 +123,7 @@ public class EndLevelStatsPopup : MonoBehaviour
     {
         var score_data = transform.gameObject.GetComponentInChildren<GlowingMaterial>(true);
         var greeting = transform.gameObject.GetComponentInChildren<Greeting>(true);
+
 
         GetTextMesh<GlowingMaterial>(score_data, out _dataScore);
         GetTextMesh<Greeting>(greeting, out _dataGreeting);
