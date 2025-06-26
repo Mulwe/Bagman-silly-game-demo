@@ -74,6 +74,7 @@ public class PlayerEventHandler : MonoBehaviour
         float k = 1.5f;
         var newSpeed = _defaultSpeed;
         var minSpeed = _defaultSpeed * 0.3f;
+
         if (_playerCartData.AttachedCarts > 0)
             newSpeed = Mathf.Max(minSpeed, _defaultSpeed - k * _playerCartData.AttachedCarts);
         if (_playerStats.Stamina == 0)
@@ -100,7 +101,6 @@ public class PlayerEventHandler : MonoBehaviour
     {
         float staminaRateDrain = _playerCartData.AttachedCarts * (_playerStats.MaxStamina / 100);
         int staminaToDrain = Mathf.RoundToInt(StaminaDrain * staminaRateDrain);
-
         _playerStats.UseStamina(staminaToDrain);
     }
 
@@ -118,7 +118,7 @@ public class PlayerEventHandler : MonoBehaviour
             while (_isInit)
             {
                 RefreshUI();
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(0.5f); //// û
             }
         }
     }
@@ -181,20 +181,29 @@ public class PlayerEventHandler : MonoBehaviour
     private void Update()
     {
         regenTimer += Time.deltaTime;
-        if (_isInit)
+        if (_isInit && regenTimer >= 1f)
         {
-            if (regenTimer >= 1f)
+            float stamina = StaminaDrain;
+
+            switch (_playerCartData.AttachedCarts)
             {
-                if (_playerCartData.AttachedCarts > 0)
-                    _playerStats.RestoreStamina(
-                        StaminaDrain * (StaminaDrain / _playerCartData.AttachedCarts));
-                else
-                    _playerStats.RestoreStamina(StaminaDrain * 2);
-                regenTimer = 0f;
+                case 0:
+                    _playerStats.RestoreStamina(StaminaDrain * StaminaDrain / 2);
+                    break;
+
+                case 1:
+                    stamina *= stamina / 1.8f;
+                    _playerStats.RestoreStamina(Mathf.RoundToInt(stamina));
+                    break;
+
+                default:
+                    stamina *= stamina / _playerCartData.AttachedCarts;
+                    _playerStats.RestoreStamina(Mathf.RoundToInt(stamina));
+                    break;
             }
+            regenTimer = 0f;
         }
     }
-
 
     public void RefreshUI()
     {

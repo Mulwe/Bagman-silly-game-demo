@@ -65,7 +65,8 @@ public class FollowingCamera : MonoBehaviour
 
     private void CameraMove(GameObject target)
     {
-        _camera = Vector3.Lerp(_camera, target.transform.position, _speed * smoothness * Time.deltaTime);
+        float t = Mathf.Clamp01(_speed * smoothness * Time.deltaTime);
+        _camera = Vector3.Lerp(_camera, target.transform.position, t);
         _camera.z = _z;
         this.transform.position = _camera;
     }
@@ -112,12 +113,12 @@ public class FollowingCamera : MonoBehaviour
         }
     }
 
-    void StopFollowingTarget()
+    public void StopFollowingTarget()
     {
         _isFollowingPlayer = false;
     }
 
-    void KeepFollowingTarget()
+    public void KeepFollowingTarget()
     {
         _isFollowingPlayer = true;
     }

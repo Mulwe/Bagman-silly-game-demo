@@ -24,7 +24,6 @@ public class SoundFXManager : MonoBehaviour
         //spawn in GameObject
         if (audioClip == null)
         {
-            Debug.LogWarning($"AudioClip is null. Not played");
             return;
         }
         AudioSource audioSource = Instantiate(_soundFXObject, spawn.position, Quaternion.identity);
@@ -40,7 +39,6 @@ public class SoundFXManager : MonoBehaviour
     {
         if (audioClip == null || audioClip.Count() == 0)
         {
-            Debug.LogWarning($"AudioClip array is null. Exit");
             return;
         }
 

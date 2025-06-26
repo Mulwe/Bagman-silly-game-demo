@@ -1,13 +1,11 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerCartController : MonoBehaviour
 {
     [Header("Cart Attachment")]
     public Transform attachPoint;
     public bool hasCartAttached;
-
-    [Header("Cart Control")]
-    public KeyCode detachAllKey = KeyCode.R;
 
     [Header("Cart Settings")]
     [SerializeField] private int _limitAttachedCarts = 4;
@@ -20,6 +18,14 @@ public class PlayerCartController : MonoBehaviour
     private FloatingTip _tip;
     private bool _isLogging;
 
+    private PlayerInputActions _input;
+
+    public void ResetData()
+    {
+        hasCartAttached = false;
+        _attachedCarts = 0;
+    }
+
     private void Start()
     {
         // Create attachment point if not set
@@ -30,32 +36,42 @@ public class PlayerCartController : MonoBehaviour
         _isLogging = false;
     }
 
-    public void ResetData()
+    private void InitinputActions()
     {
-        hasCartAttached = false;
-        _attachedCarts = 0;
+        _input = GetComponent<PlayerController>().InputActions;
     }
 
-
-    private void Update()
+    public void OnDropOff(InputAction.CallbackContext context)
     {
         // Detach all carts when pressing the detach key
-        if (hasCartAttached && Input.GetKeyDown(detachAllKey))
+        if (context.performed && hasCartAttached)
         {
             DetachAllCarts();
         }
     }
 
+    //  PlayerController подписывает данный класс на нажатие кнопки
     private void OnEnable()
     {
         ImprovedCartAttachment.OnCartAttached += HandleCartAttached;
         ImprovedCartAttachment.OnCartDetached += HandleCartDetached;
+        if (_input == null)
+            InitinputActions();
+        if (_input != null)
+        {
+            _input.Player.DropOff.performed += OnDropOff;
+        }
     }
 
+    //  и отписывает при уничтожении
     private void OnDisable()
     {
         ImprovedCartAttachment.OnCartAttached -= HandleCartAttached;
         ImprovedCartAttachment.OnCartDetached -= HandleCartDetached;
+        if (_input != null)
+        {
+            _input.Player.DropOff.performed -= OnDropOff;
+        }
     }
 
     public void HandleShowPickUpTip(string msg)
@@ -86,7 +102,7 @@ public class PlayerCartController : MonoBehaviour
             _interactArea = transform.gameObject.AddComponent<CircleCollider2D>();
             if (_interactArea != null)
             {
-                _interactArea.isTrigger = true;//отключает физику
+                _interactArea.isTrigger = true; //отключает физику
                 _interactArea.radius = _radius;
                 _interactArea.enabled = true;
             }
@@ -165,8 +181,6 @@ public class PlayerCartController : MonoBehaviour
         hasCartAttached = false;
         _attachedCarts = 0;
     }
-
-
 
     void OnDrawGizmosSelected()
     {

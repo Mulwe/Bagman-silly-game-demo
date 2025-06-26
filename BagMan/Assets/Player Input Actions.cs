@@ -29,26 +29,26 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             ""actions"": [
                 {
                     ""name"": ""Move"",
-                    ""type"": ""PassThrough"",
+                    ""type"": ""Value"",
                     ""id"": ""e1e76d91-635b-4da0-90c3-ea2be6c48b2b"",
                     ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""PickUp"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""055ed1b5-f782-4455-82bd-c34be76936e3"",
+                    ""expectedControlType"": ""Touch"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ShiftAction"",
-                    ""type"": ""Button"",
-                    ""id"": ""f84f3f06-c777-4b02-a58d-0feef37be0ed"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": ""Hold"",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""interactions"",
-                    ""type"": ""Button"",
-                    ""id"": ""6a27e617-3d4b-46f7-8de9-368d19742b25"",
+                    ""name"": ""DropOff"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""28a81f5b-5a64-45bc-b774-9e6eda9b52d3"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -112,90 +112,35 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""TouchScreen"",
-                    ""id"": ""012b71fb-fe33-4904-9478-ed164c7f8363"",
-                    ""path"": ""2DVector"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": true,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""up"",
-                    ""id"": ""30bce2a6-491d-4cbb-9dc8-69813c26cfec"",
-                    ""path"": ""<Touchscreen>/primaryTouch/delta/up"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""down"",
-                    ""id"": ""cf243c6b-ff48-480d-8bf9-6d0ad236c20f"",
-                    ""path"": ""<Touchscreen>/delta/down"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""left"",
-                    ""id"": ""d94d6aa6-a981-41ab-af31-f8eecf234a52"",
-                    ""path"": ""<Touchscreen>/delta/left"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""right"",
-                    ""id"": ""1c3b543b-82f4-4008-bbb2-dbdc71be7a00"",
-                    ""path"": ""<Touchscreen>/delta/right"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
                     ""name"": """",
-                    ""id"": ""34e577fb-4b74-4bd6-9e40-42c38169ce9c"",
-                    ""path"": ""<Keyboard>/leftShift"",
-                    ""interactions"": ""Hold"",
+                    ""id"": ""5a601a9c-3eb7-468d-825d-c3f44c433590"",
+                    ""path"": ""<Gamepad>/leftStick"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ShiftAction"",
+                    ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""9da4455f-cb3d-4209-bf99-ba99982a5032"",
-                    ""path"": ""<Keyboard>/e"",
-                    ""interactions"": ""Press"",
+                    ""id"": ""e537adf5-03ec-48a9-b9b9-98bc52970904"",
+                    ""path"": ""<Keyboard>/j"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""interactions"",
+                    ""action"": ""PickUp"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""bb95f53b-4f95-4750-aadf-5b42ce9dfaf3"",
-                    ""path"": ""<Keyboard>/q"",
-                    ""interactions"": ""Press"",
+                    ""id"": ""bea56f3d-b868-4626-8c9b-002de541ea41"",
+                    ""path"": ""<Keyboard>/l"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""interactions"",
+                    ""action"": ""DropOff"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -230,13 +175,19 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             ]
         }
     ],
-    ""controlSchemes"": []
+    ""controlSchemes"": [
+        {
+            ""name"": ""New Control Scheme"",
+            ""bindingGroup"": ""New Control Scheme"",
+            ""devices"": []
+        }
+    ]
 }");
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
-        m_Player_ShiftAction = m_Player.FindAction("ShiftAction", throwIfNotFound: true);
-        m_Player_interactions = m_Player.FindAction("interactions", throwIfNotFound: true);
+        m_Player_PickUp = m_Player.FindAction("PickUp", throwIfNotFound: true);
+        m_Player_DropOff = m_Player.FindAction("DropOff", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Menu = m_UI.FindAction("Menu", throwIfNotFound: true);
@@ -308,15 +259,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
-    private readonly InputAction m_Player_ShiftAction;
-    private readonly InputAction m_Player_interactions;
+    private readonly InputAction m_Player_PickUp;
+    private readonly InputAction m_Player_DropOff;
     public struct PlayerActions
     {
         private @PlayerInputActions m_Wrapper;
         public PlayerActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Player_Move;
-        public InputAction @ShiftAction => m_Wrapper.m_Player_ShiftAction;
-        public InputAction @interactions => m_Wrapper.m_Player_interactions;
+        public InputAction @PickUp => m_Wrapper.m_Player_PickUp;
+        public InputAction @DropOff => m_Wrapper.m_Player_DropOff;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -329,12 +280,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
-            @ShiftAction.started += instance.OnShiftAction;
-            @ShiftAction.performed += instance.OnShiftAction;
-            @ShiftAction.canceled += instance.OnShiftAction;
-            @interactions.started += instance.OnInteractions;
-            @interactions.performed += instance.OnInteractions;
-            @interactions.canceled += instance.OnInteractions;
+            @PickUp.started += instance.OnPickUp;
+            @PickUp.performed += instance.OnPickUp;
+            @PickUp.canceled += instance.OnPickUp;
+            @DropOff.started += instance.OnDropOff;
+            @DropOff.performed += instance.OnDropOff;
+            @DropOff.canceled += instance.OnDropOff;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -342,12 +293,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
-            @ShiftAction.started -= instance.OnShiftAction;
-            @ShiftAction.performed -= instance.OnShiftAction;
-            @ShiftAction.canceled -= instance.OnShiftAction;
-            @interactions.started -= instance.OnInteractions;
-            @interactions.performed -= instance.OnInteractions;
-            @interactions.canceled -= instance.OnInteractions;
+            @PickUp.started -= instance.OnPickUp;
+            @PickUp.performed -= instance.OnPickUp;
+            @PickUp.canceled -= instance.OnPickUp;
+            @DropOff.started -= instance.OnDropOff;
+            @DropOff.performed -= instance.OnDropOff;
+            @DropOff.canceled -= instance.OnDropOff;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -411,11 +362,20 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         }
     }
     public UIActions @UI => new UIActions(this);
+    private int m_NewControlSchemeSchemeIndex = -1;
+    public InputControlScheme NewControlSchemeScheme
+    {
+        get
+        {
+            if (m_NewControlSchemeSchemeIndex == -1) m_NewControlSchemeSchemeIndex = asset.FindControlSchemeIndex("New Control Scheme");
+            return asset.controlSchemes[m_NewControlSchemeSchemeIndex];
+        }
+    }
     public interface IPlayerActions
     {
         void OnMove(InputAction.CallbackContext context);
-        void OnShiftAction(InputAction.CallbackContext context);
-        void OnInteractions(InputAction.CallbackContext context);
+        void OnPickUp(InputAction.CallbackContext context);
+        void OnDropOff(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

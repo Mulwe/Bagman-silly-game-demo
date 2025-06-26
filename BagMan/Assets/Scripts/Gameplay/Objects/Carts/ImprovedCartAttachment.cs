@@ -1,12 +1,15 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ImprovedCartAttachment : MonoBehaviour
 {
     [Header("Debug: ")]
     [SerializeField] private GameObject _playerObject;
     [SerializeField] private PlayerCartController _playerCartController;
+
+    private PlayerInputActions _inputActions;
 
     [Header("Attachment Settings")]
     public float attachDistance = 1.5f;
@@ -34,6 +37,7 @@ public class ImprovedCartAttachment : MonoBehaviour
     [SerializeField] private bool hasSomethingBehind = false;
 
     public bool Linked => isAttached || isAttachedToPlayer || hasSomethingBehind;
+
 
     // References
     private HingeJoint2D joint;
@@ -64,27 +68,76 @@ public class ImprovedCartAttachment : MonoBehaviour
             Debug.LogError("Player Cart Controller not found!");
 
         AddInteractionCollider(attachDistance);
+        InitActionControl(_playerObject);
     }
 
-    private void Update()
+    private void InitActionControl(GameObject _player)
+    {
+        if (_player != null)
+        {
+            this._inputActions = _player.GetComponent<PlayerController>().InputActions;
+            this.AddListeners();
+        }
+    }
+
+    private void AddListeners()
+    {
+        if (this._inputActions != null)
+        {
+            this._inputActions.Player.DropOff.performed += this.OnDetach;
+            this._inputActions.Player.PickUp.performed += this.OnAttach;
+        }
+    }
+
+    private void RemoveListeners()
+    {
+        if (this._inputActions != null)
+        {
+            this._inputActions.Player.DropOff.performed -= this.OnDetach;
+            this._inputActions.Player.PickUp.performed -= this.OnAttach;
+        }
+    }
+
+    private void OnDetach(InputAction.CallbackContext context)
+    {
+        if (Linked)
+        {
+            if (isAttached && context.performed)
+            {
+                Detach();
+                return;
+            }
+        }
+    }
+
+    private void OnAttach(InputAction.CallbackContext context)
+    {
+        if (!isAttached && context.performed)
+        {
+            Collider2D playerCollider = Physics2D.OverlapCircle(transform.position, attachDistance, playerLayer);
+            TryAttach(playerCollider);
+        }
+
+    }
+
+
+
+
+    private void OnDisable()
+    {
+        this.RemoveListeners();
+    }
+
+    private void FixedUpdate()
     {
 
-        if (isAttached && Input.GetKeyDown(KeyCode.Q))
-        {
-            Detach();
-            return;
-        }
-        if (!isAttached && Input.GetKeyDown(KeyCode.E))
-        {
-            TryAttach();
-        }
         if (Linked && interactionArea != null)
             interactionArea.enabled = false;
         else
             interactionArea.enabled = true;
     }
 
-    //for tips
+    //подсказки. скрыто. не реализован 
     private void AddInteractionCollider(float radius)
     {
         if (gameObject != null && gameObject.GetComponent<CircleCollider2D>() == null)
@@ -95,7 +148,6 @@ public class ImprovedCartAttachment : MonoBehaviour
                 interactionArea.isTrigger = true;
                 interactionArea.radius = radius;
                 interactionArea.enabled = true;
-                //подписка на игрока
             }
         }
     }
@@ -106,7 +158,7 @@ public class ImprovedCartAttachment : MonoBehaviour
         {
             if (collision is CircleCollider2D)
             {
-                if (!this.Linked && _playerCartController != null)
+                if (!Linked && _playerCartController != null)
                 {
                     if (_playerCartController.AttachedCarts < _maxCarts)
                         _playerCartController.HandleShowPickUpTip(null);
@@ -125,7 +177,7 @@ public class ImprovedCartAttachment : MonoBehaviour
             {
                 if (_playerCartController != null)
                 {
-                    if (!this.Linked && _playerCartController.AttachedCarts == _maxCarts)
+                    if (!Linked && _playerCartController.AttachedCarts == _maxCarts)
                     {
                         _playerCartController.HandleHidePickUpTip();
                     }
@@ -133,8 +185,6 @@ public class ImprovedCartAttachment : MonoBehaviour
             }
         }
     }
-
-
     private void InitializeAttachmentPoints()
     {
         if (frontPoint == null)     // Create front attachment point if needed
@@ -154,7 +204,7 @@ public class ImprovedCartAttachment : MonoBehaviour
         }
     }
 
-    void TryAttach()
+    void TryAttach(Collider2D playerCollider)
     {
         if (_playerCartController != null)
         {
@@ -163,19 +213,19 @@ public class ImprovedCartAttachment : MonoBehaviour
         }
         if (isAttached == false) // чтобы скипал все те что уже пристегнуты
         {
-            bool CartInPlayerZone = TryAttachCheckPlayer();
+            bool CartInPlayerZone = TryAttachCheckPlayer(playerCollider);
             TryAttachCheckCarts(CartInPlayerZone);
         }
     }
 
 
     //  First joint from player to cart 
-    bool TryAttachCheckPlayer()
+    bool TryAttachCheckPlayer(Collider2D playerCollider)
     {
-        Collider2D playerCollider = Physics2D.OverlapCircle(transform.position, attachDistance, playerLayer);
         if (playerCollider != null)
         {
             PlayerCartController plCrtCtrl = _playerCartController;
+
             if (plCrtCtrl != null && !plCrtCtrl.hasCartAttached)
             {
                 AttachToPlayer(playerCollider.gameObject);
@@ -201,7 +251,8 @@ public class ImprovedCartAttachment : MonoBehaviour
     void TryAttachCheckCarts(bool CartInPlayerZone)
     {
         // after we found last cart in line,connect the cart in player zone, if possible
-        Collider2D[] cartColliders = Physics2D.OverlapCircleAll(transform.position, attachDistance, cartLayer);
+        int amount = _playerCartController.AttachedCarts;
+        Collider2D[] cartColliders = Physics2D.OverlapCircleAll(transform.position, attachDistance + (amount - 1) * (0.5f), cartLayer);
 
         foreach (Collider2D cartCollider in cartColliders)
         {
@@ -361,27 +412,31 @@ public class ImprovedCartAttachment : MonoBehaviour
 
     void Detach()
     {
-        PlayerCartController playerController = connectedObject.GetComponent<PlayerCartController>();
-
-        if (joint != null)
+        if (connectedObject != null)
         {
-            if (isAttachedToPlayer)
+            PlayerCartController plCrtController = null;
+            connectedObject.TryGetComponent<PlayerCartController>(out var tmp);
+            if (tmp != null)
+                plCrtController = tmp;
+            if (joint != null)
             {
-                // Update player's attached status
-                if (playerController != null)
-                    playerController.hasCartAttached = false;
+                if (isAttachedToPlayer)
+                {
+                    // Update player's attached status
+                    if (plCrtController != null)
+                        plCrtController.hasCartAttached = false;
+                }
+                else
+                {
+                    // Update other cart's status
+                    ImprovedCartAttachment connectedCart = connectedObject.GetComponent<ImprovedCartAttachment>();
+                    if (connectedCart != null)
+                        connectedCart.hasSomethingBehind = false;
+                }
+                Destroy(joint);
+                joint = null;
             }
-            else
-            {
-                // Update other cart's status
-                ImprovedCartAttachment connectedCart = connectedObject.GetComponent<ImprovedCartAttachment>();
-                if (connectedCart != null)
-                    connectedCart.hasSomethingBehind = false;
-            }
-            Destroy(joint);
-            joint = null;
         }
-
         isAttached = false;
         isAttachedToPlayer = false;
         connectedObject = null;
