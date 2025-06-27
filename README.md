@@ -22,6 +22,7 @@ The main objective is to collect all the carts and bring them back to the centra
 - Pause menu 
 - Music, Sounds, Music control
 - Mobile control for web build
+- Shadows
 
 ## 🕹 Controls
 
