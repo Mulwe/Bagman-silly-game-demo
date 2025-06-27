@@ -307,6 +307,7 @@ public class ImprovedCartAttachment : MonoBehaviour
         joint.connectedBody = playerRb;
         // Configure joint
         joint.anchor = frontPoint.localPosition;
+
         if (playerController != null && playerController.attachPoint != null)
         {
             // Convert player's attach point to local space
